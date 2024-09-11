@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <style>
+        body {
+            background-color: #EAE7DC ;
+            margin: 0px;
+            font-family:'Arial', 'Helvetica', sans-serif;
+            font-size: 18px;
+        }
+
+        .home-image {
+            background-image: url(./site_pages/IMG_3777.jpg);
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center top;
+            background-size: 100%;
+            height: 400px;
+        }
+
+        .home-image-text {
+            top:27%;
+            position: relative;
+            color: #e85a4f;
+        }
+
+        .navbar {
+            overflow: hidden;
+            background-color: #D8C3A5;
+        }
+
+        .navbar a {
+            float: left;
+            color: #e85a4f;
+            text-align: center;
+            font-size: 18 px;
+            padding: 20px 24px;
+            text-decoration: none;
+        }
+
+        .navbar a.active{
+            background-color: #e98074;
+            color: #EAE7DC;
+        }
+
+        .navbar a:hover{
+            background-color: #8E8D8A;
+            color: #EAE7DC;
+        }
+
+        p {
+            text-indent: 50px;
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
+        h1 {
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
+        h3 {
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
+        a {
+            text-decoration: none;
+        }    
+    </style>
+</head>
+<body>
+    <div class = "navbar">
+        <a class = "active" href ="./index.html">Introduction</a>
+        <a href = "./site_pages/EDA.html">EDA</a>
+        <a href = "./site_pages/ARM.html">ARM</a>
+        <a href = './site_pages/Clustering.html'>Clustering</a>
+        <a href = "./site_pages/NB.html">Naive Bayes</a>
+        <a href = "./site_pages/PCA.html">PCA</a>
+        <a href = "./site_pages/Regression.html">Regression</a>
+        <a href = "./site_pages/SVM.html">SVM</a>
+        <a href = "./site_pages/DT.html">DT</a>
+        <a href = "./site_pages/Conclusions.html">Conclusions</a>
+    </div>
+   <div class = "home-image">
+        <div class = "home-image-text">
+            <h1>Machine Learning Demonstration</h1>
+        </div>
+   </div>
+<h1>Introduction</h1>
+<h3>Background and Motivations</h3>
+<p>
+    With the 2024 presidential election upcoming in the United States, it is absolutely vital to understand the health and stability of the American people.
+    Looking into the current financial stability provides insights into which direction policy should focus on moving forward.
+    This not only provides a general understanding of where current policy lacks both in general and specific demographics, but pushes insights into what specifically the American people need at this point in time.
+    As this data is the skeleton of financial indicators in a given household (e.g. income, expenditure, health insurance, rent, etc.), it is unable to diagnose specific case by case issues.
+    Rather, this project uses a more utilitarian perspective on identifying key areas of financial strain in the US.
+    This will provide insights into which specific areas the government can develop policy to help the largest groups of people at a time, increasing <i>net</i> utility.
+    Prior work using this data comes mostly from the public sector, with a heavy focus on policy development and a general understanding of the current US profile.
+    Many such agencies include <a href = "BLS.gov">The Bureau of Labor Statistics</a>, <a href = "hhs.gov">The Department of Human Health Services</a>, and <a href = "nih.gov">The National Institute of Health.</a>
+    However, there are many think tanks that additionally use census data, and the data used in this project specifically, for policy development and lobbying within the US government.
+    One such think tank, the PEW Research Center, used an older version of the pulse survey <a href = "https://www.pewresearch.org/social-trends/2022/04/20/covid-19-pandemic-pinches-finances-of-americas-lower-and-middle-income-families/">to measure the financial impact of COVID on middle and lower class families.</a>
+    Furthermore, databases like <a href = "https://fred.stlouisfed.org/">FRED</a> collect data from the US Census to provide easy access to information, measure the national economic status of the US, and provide interactive, time series based visualizations of specific measurements and demographics.
+</p>
+
+<p>
+    As this project will have an emphasis on the economic status of the American people, much of the focus and drive throughout the following work will measure the health and common themes within the labor force.
+    
+</p>
+
+<h3>Driving Questions</h3>
+
+&nbsp;&nbsp;&nbsp;&nbsp;Included below are 10 of the driving questions behind this project:
+
+    <ol>
+        <li>What key features indicate financial stability in the Unites States?</li>
+        <li>How does union participation impact financial stability?</li>
+        <li>What key financial burdens affect the American people the most (e.g. rent, childcare, insurance)?</li>
+        <li>How are key demographics in the US more or less well off in today's market?</li>
+        <li>How does education impact financial stability?</li>
+        <li>Do current finacnial strains amongst the US population inhibit attaining higher education?</li>
+        <li>Does current childcare needs in the US inhibit financial independence?</li>
+        <li>Are younger genereations in the US less likely to be financially independent than their older peers?</li>
+        <li>Are current retirement annuities, pensions, savings, etc. capable of supporting our elderly population?</li>
+        <li>Which full time occupations are capable of supporting a household today without need for dual (or higher) income?</li>
+        <li>Does household laborforce participation rate impact financial independence, and how, if at all, does said participation rate impact the ability to afford higher education?</li>
+    </ol>
+
+</html>

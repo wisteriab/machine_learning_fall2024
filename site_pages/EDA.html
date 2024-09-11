@@ -50,6 +50,18 @@
             color: #EAE7DC;
         }
 
+        h1{
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
+        h3{
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
         p {
             text-indent: 50px;
             line-height: 150%;
@@ -60,11 +72,19 @@
         a {
             text-decoration: none;
         }    
+
+        .center {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 50%;
+        }
+
     </style>
 </head>
 <body>
     <div class = "navbar">
-        <a href ="../home.html">Introduction</a>
+        <a href ="../index.html">Introduction</a>
         <a class = "active" href = "./EDA.html">EDA</a>
         <a href = "./ARM.html">ARM</a>
         <a href = './Clustering.html'>Clustering</a>
@@ -75,3 +95,334 @@
         <a href = "./DT.html">DT</a>
         <a href = "./Conclusions.html">Conclusions</a>
     </div>
+
+<h1>Data Collection and Exploratory Data Analysis</h1>
+<h3>Data Collection</h3>
+
+    <p>
+        The data used in the following models is pulled directly from the <a href = "https://www.census.gov/">United States Census</a> and their API. 
+        More specifically the data is pulled from the most recent Current Population Survey Annual Social and Economic Supplement which provides a pulse measurement of the financial stability in the United States.
+        The base API url for such data can be found at the core API enpoint: <a href = "http://api.census.gov/data/2023/cps/asec/mar">http://api.census.gov/data/2023/cps/asec/mar</a>.
+        According to the organizers of the census the survey provides an annual population profile based upon both labor and expenditures.
+        This means that 
+
+     </p>
+
+    <p>
+        <strong>To pull the data used in this project, apply the following API url in a python GET request:</strong>
+        <br>
+        "https://api.census.gov/data/2023/cps/asec/mar?
+        get=A_LINENO,
+        A_AGE,
+        A_DTIND,
+        A_DTOCC,
+        A_ENRLW,
+        A_EXPLF,
+        A_FAMNUM,
+        A_FTLF,
+        A_FTPT,
+        A_HGA,
+        A_HSCOL,
+        A_GRSWK,
+        A_HRLYWK,
+        A_HRS1,
+        A_LFSR,
+        A_MARITL,
+        A_MJOCC,
+        A_SEX,
+        A_UNCOV,
+        A_UNMEM,
+        A_UNTYPE,
+        A_WKSLK,
+        A_WKSTAT,
+        AGE1,
+        AGI,
+        CHCARE_YN,
+        HCHCARE_VAL,
+        HCHCARE_YN,
+        COV_CYR,
+        DEPPRIV,
+        ESICOULD,
+        FAMLIS,
+        FEARNVAL,
+        FFPOS,
+        FMED_VAL,
+        FMOOP,
+        FOTC_VAL,
+        FRNTVAL,
+        GESTFIPS,
+        GTCBSAST
+        &for=state:*
+        &key=INPUT_PERSONAL_KEY_HERE"
+    </p>
+
+    <p>
+        <strong> 
+        Said API request produces a json file that can be later converted into a dataframe as needed for a given programming language.
+        The raw file is as follows:
+        </strong>
+        <br>
+        [['A_LINENO',
+        'A_AGE',        
+        'A_DTIND',
+        'A_DTOCC',
+        'A_ENRLW',
+        'A_EXPLF',
+        'A_FAMNUM',
+        'A_FTLF',
+        'A_FTPT',
+        'A_HGA',
+        'A_HSCOL',
+        'A_GRSWK',
+        'A_HRLYWK',
+        'A_HRS1',
+        'A_LFSR',
+        'A_MARITL',
+        'A_MJOCC',
+        'A_SEX',
+        'A_UNCOV',
+        'A_UNMEM',
+        'A_UNTYPE',
+        'A_WKSLK',
+        'A_WKSTAT',
+        'AGE1',
+        'AGI',
+        ...
+        '0',
+        '23',
+        '2',
+        '23'],
+        ...]
+    </p>
+
+<h3>Data Preparation</h3>
+
+    <p>
+        Much of the data cleaning and preparation involved ensuring that the datafram was in a generalized, readable format such that it can be adjusted as neccessary for future machine learning models.
+        This began with renaming each of the columns away from the original code to a name that is more representative of the feature itself.
+        Additionally, features found to be redundant, i.e. many of the features that had been recoded, were dropped entirely from the dataset in favor of the recoded values.
+        As such much of the data was left in, with minimal need for dropping instances where an individual was "not in [a given] universe."
+        In these cases it was frequently found that where an indvidual was found not to be in the universe, they did not meet the qualifications of whatever demographic was being measured.
+        For example, if somebody had income above the poverty line, they would be considered not in universe under the field measuring poverty ratios, however, they still have pertinent data in other fields.
+        As such a trade off was made here, keep in much of the <i>technically</i> missing data such that a more accurate picture of the US was kept.
+        However, this also means that future endeavors using each field will need to account for the fact that information was left in from the start.
+        This will be documented and noted as is necessary depending upon the model or figure. 
+    </p>
+
+    <p>
+        Furthermore, much of the original data had been encodedby the Census team into an integer format.
+        Many of these cases were categorical fields, leaving the data unlabelled without the assistance of the data dictionary provided by the US Census.
+        To account for this, and for ease of understanding, much of the data was reverted to its original categories.
+        This will allow for future analysis and data labelling particularly in the case of facts and figures. 
+        Should there be a need for numerical inputs, said data will be reverted to a representative numerical grouping as it was originally.
+        This also implies that all of the data was provided as an integer within the dataframe.
+        As such all of this data was converted away from an integer and into a string where applicable, and each numerical feature was checked to keep each column consistent with its data.
+    </p>
+
+    <p> 
+        <strong>Completing preliminary data cleaning produces a python dataframe to be used for machine learning models.
+        The dataframe is as follows (trimmed to display 10 of 48 features):
+        </strong>
+        <div>
+            <style scoped>
+                .dataframe tbody tr th:only-of-type {
+                    vertical-align: middle;
+                }
+            
+                .dataframe tbody tr th {
+                    vertical-align: top;
+                }
+            
+                .dataframe thead th {
+                    text-align: right;
+                }
+            </style>
+            <table border="1" class="dataframe">
+              <thead>
+                <tr style="text-align: right;">
+                  <th></th>
+                  <th>age</th>
+                  <th>job_industry_recode</th>
+                  <th>school_enroll_lastweek</th>
+                  <th>employment</th>
+                  <th>fam_size</th>
+                  <th>...</th>
+                  <th>fam_otc_med_costs</th>
+                  <th>fam_rent_val</th>
+                  <th>fips</th>
+                  <th>state</th>
+                  <th>state</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>1</th>
+                  <td>67</td>
+                  <td>Not in universe, or children</td>
+                  <td>Not in univ. or children &amp; Armed Forces</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>...</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>ME</td>
+                  <td>4</td>
+                  <td>23</td>
+                </tr>
+                <tr>
+                  <th>2</th>
+                  <td>74</td>
+                  <td>Not in universe, or children</td>
+                  <td>Not in univ. or children &amp; Armed Forces</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>...</td>
+                  <td>60</td>
+                  <td>0</td>
+                  <td>ME</td>
+                  <td>4</td>
+                  <td>23</td>
+                </tr>
+                <tr>
+                  <th>3</th>
+                  <td>66</td>
+                  <td>Not in universe, or children</td>
+                  <td>Not in univ. or children &amp; Armed Forces</td>
+                  <td>0</td>
+                  <td>1</td>
+                  <td>...</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>ME</td>
+                  <td>3</td>
+                  <td>23</td>
+                </tr>
+                <tr>
+                  <th>4</th>
+                  <td>68</td>
+                  <td>Not in universe, or children</td>
+                  <td>Not in univ. or children &amp; Armed Forces</td>
+                  <td>0</td>
+                  <td>1</td>
+                  <td>...</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>ME</td>
+                  <td>3</td>
+                  <td>23</td>
+                </tr>
+                <tr>
+                  <th>5</th>
+                  <td>52</td>
+                  <td>Not in universe, or children</td>
+                  <td>No</td>
+                  <td>0</td>
+                  <td>1</td>
+                  <td>...</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>ME</td>
+                  <td>3</td>
+                  <td>23</td>
+                </tr>
+                <tr>
+                  <th>...</th>
+                  <td>...</td>
+                  <td>...</td>
+                  <td>...</td>
+                  <td>...</td>
+                  <td>...</td>
+                  <td>...</td>
+                  <td>...</td>
+                  <td>...</td>
+                  <td>...</td>
+                  <td>...</td>
+                  <td>...</td>
+                </tr>
+                <tr>
+                  <th>146129</th>
+                  <td>17</td>
+                  <td>Not in universe, or children</td>
+                  <td>Yes</td>
+                  <td>0</td>
+                  <td>1</td>
+                  <td>...</td>
+                  <td>200</td>
+                  <td>0</td>
+                  <td>HI</td>
+                  <td>2</td>
+                  <td>15</td>
+                </tr>
+                <tr>
+                  <th>146130</th>
+                  <td>15</td>
+                  <td>Not in universe, or children</td>
+                  <td>Not in univ. or children &amp; Armed Forces</td>
+                  <td>0</td>
+                  <td>1</td>
+                  <td>...</td>
+                  <td>200</td>
+                  <td>0</td>
+                  <td>HI</td>
+                  <td>2</td>
+                  <td>15</td>
+                </tr>
+                <tr>
+                  <th>146131</th>
+                  <td>59</td>
+                  <td>Office and administrative support occupations</td>
+                  <td>Not in univ. or children &amp; Armed Forces</td>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>...</td>
+                  <td>450</td>
+                  <td>0</td>
+                  <td>HI</td>
+                  <td>2</td>
+                  <td>15</td>
+                </tr>
+                <tr>
+                  <th>146132</th>
+                  <td>60</td>
+                  <td>Business and financial operations occupations</td>
+                  <td>Not in univ. or children &amp; Armed Forces</td>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>...</td>
+                  <td>450</td>
+                  <td>0</td>
+                  <td>HI</td>
+                  <td>2</td>
+                  <td>15</td>
+                </tr>
+                <tr>
+                  <th>146133</th>
+                  <td>18</td>
+                  <td>Office and administrative support occupations</td>
+                  <td>Yes</td>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>...</td>
+                  <td>450</td>
+                  <td>0</td>
+                  <td>HI</td>
+                  <td>2</td>
+                  <td>15</td>
+                </tr>
+              </tbody>
+            </table>
+            <p>146133 rows × 39 columns</p>
+            </div>
+    </p>
+
+    <h3>Substantial Data Trends</h3>
+    <h3>Mean Income by State</h3>
+    <p>
+        Below the Mean federally adjusted gross income by state is displayed. 
+        The vast majority of high earners exist on the east coast with massachussetts and Virginia standing out. 
+        Although Colorado and Wahsington also demonstrate themselves to be among the top.
+        Through this, efforts can be focussed into poorer areas of the country to help isolate and determine what policy measures are lacking in agiven state that adds to the income disparity
+    </p>
+    <img src="./plots/mean_income_by_state.png" alt="Average Income by State", class = center>
+</body>
+</html>
