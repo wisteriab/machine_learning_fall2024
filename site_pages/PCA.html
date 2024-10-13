@@ -60,6 +60,25 @@
         a {
             text-decoration: none;
         }    
+
+        h1 {
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
+        h3 {
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
+        .center {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 50%;
+        }
     </style>
 </head>
 <body>
@@ -75,3 +94,183 @@
         <a href = "./DT.html">DT</a>
         <a href = "./Conclusions.html">Conclusions</a>
     </div>
+
+    <h1>Principal Component Analysis</h1>
+    <h3>PCA Overview</h3>
+    <p>
+        Principal Component Analysis (PCA) is, in a way, a special case of optimization with the aim of minimizing the the necessary components to explain the maximum amount of variability in the data.
+        These components, referred to as the principal components (the source of the name), are a result of reducing the dimensionality of the overall dataset into eigenvectors and their values.
+        Thus, the goal is, in effect, looking for the orthogonal vectors of the components to maximally explain the data.
+        Because of the nature of the process, principal component analysis can only be performed on quantitative data. 
+        While it is <i>technically</i> possible to complete PCA on ordinal data that represent categories, it is strongly advised against because of the variability and issues that come about from representing a categorical variable as numeric.
+        As such the following <i>strictly</i> attempts to reduce the dimensionality of the census data by selecting only quantitative, continuous data.
+        In order to perform PCA, first the dataset must be cleaned as explained below.
+        Then data is normalized (StandardScalar via sklearn for this project) and the covarince matrix, and their respective eigenvectors and their values are computed.
+        For the sake of this project, the PCA function of sklearn completes this portion of PCA.
+        Finally the eigenvectors are ranked in accordance to their eigenvalues (highest to lowest) and a set number of components is used to maximally explain the data while eliminating unnecessary components.
+        Within this project, the aim of PCA is to reduce the dimensionality of the quantitative data in order to later classify poverty classes (or lack thereof).
+        Preliminary exploratory data analysis leads to the prediction that some of the income variables may be redundant as there are both family and personal incomes that may contribute to overall financial status.
+    </p>
+
+    <h3>PCA with 2 Components</h3>
+    <p>
+        When reducing the dimensionality of the data to only two principal components, roughly 32% of the variance is explained by the two dimensions.
+        This ultimately leads to the suggestion that more dimensions are necessary to effectively explain the data. 
+        While 2 dimensions is the most easily understandable in the case of visualizations, the level of expalined variance is far too low to effectively use any given model with only two dimensions.
+        This is clearly visible by the overlapping classes at the pont (x = 10, y = 2)
+        Displayed below are the two most substantial of the principal components plotted against one another to classify poverty classes within the census data.
+    </p>
+        <img src = '../site_pages/plots/two_component_pca.png' class = 'center'>
+    <p>
+        However, it is possible to increase the dimesnionality and still visualize the groupings of the data.
+        By adding a single dimension and moving into 3D, visualizations become slighlty more complicated, but still comprehensible for the sake of analysis.
+        After using the top three principal components, roughly 43% of variablility in the data is explained.
+        This is substantially better than before, but still does not provide enough value to be able to use. 
+        Ultimately this means more of the quantitative dimensions are necessary to move forward with analysis.
+        This can be seen by the same overlap of classes in the same area as before.
+        Displayed below are the three principal components with the largest ability to expalin the most varince in the data.
+    </p>
+        <img src = '../site_pages/plots/three_component_pca.png' class = 'center'>
+    <p>
+        This begins to beg the question, how many principal components are needed?
+        Below is a table displaying the cumulative explained variance with each marginal principal component.
+        As additional components are added, there is a diminishing marginal return on the explained variance.
+        Ultimately, to effectively explain at least 95% of the data nearly all the principal components are needed as 11 of the 12 would be necessary.
+        The table following this displays the top three eigenvalues in the data.
+        These correspond to the same three eigenvalues used in the 3D image above.
+    </p>
+    <h5 class = 'center'>Cumulative Explained Variance</h5>
+    <p>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="center">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>Principal Component</th>
+              <th>Cumulative Variance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>0</th>
+              <td>PC1</td>
+              <td>0.176995</td>
+            </tr>
+            <tr>
+              <th>1</th>
+              <td>PC2</td>
+              <td>0.315103</td>
+            </tr>
+            <tr>
+              <th>2</th>
+              <td>PC3</td>
+              <td>0.426452</td>
+            </tr>
+            <tr>
+              <th>3</th>
+              <td>PC4</td>
+              <td>0.513234</td>
+            </tr>
+            <tr>
+              <th>4</th>
+              <td>PC5</td>
+              <td>0.596199</td>
+            </tr>
+            <tr>
+              <th>5</th>
+              <td>PC6</td>
+              <td>0.673469</td>
+            </tr>
+            <tr>
+              <th>6</th>
+              <td>PC7</td>
+              <td>0.747989</td>
+            </tr>
+            <tr>
+              <th>7</th>
+              <td>PC8</td>
+              <td>0.817793</td>
+            </tr>
+            <tr>
+              <th>8</th>
+              <td>PC9</td>
+              <td>0.880117</td>
+            </tr>
+            <tr>
+              <th>9</th>
+              <td>PC10</td>
+              <td>0.936309</td>
+            </tr>
+            <tr>
+              <th>10</th>
+              <td>PC11</td>
+              <td>0.974694</td>
+            </tr>
+            <tr>
+              <th>11</th>
+              <td>PC12</td>
+              <td>1.000000</td>
+            </tr>
+          </tbody>
+          </table>
+        </div>
+    <h5 class = 'center'>Top 3 Eigenvalues</h5>
+        <div class = 'center'>
+            <style scoped>
+                .dataframe tbody tr th:only-of-type {
+                    vertical-align: middle;
+                }
+            
+                .dataframe tbody tr th {
+                    vertical-align: top;
+                }
+            
+                .dataframe thead th {
+                    text-align: right;
+                }
+            </style>
+            <table border="1" class="dataframe">
+              <thead>
+                <tr style="text-align: right;">
+                  <th></th>
+                  <th>Principal Component</th>
+                  <th>EigenValues</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>0</th>
+                  <td>PC1</td>
+                  <td>0.176995</td>
+                </tr>
+                <tr>
+                  <th>1</th>
+                  <td>PC2</td>
+                  <td>0.138108</td>
+                </tr>
+                <tr>
+                  <th>2</th>
+                  <td>PC3</td>
+                  <td>0.111349</td>
+                </tr>
+              </tbody>
+            </table>
+            </div>
+            </p>
+    <br>
+    <br>
+</body>
+</html>
