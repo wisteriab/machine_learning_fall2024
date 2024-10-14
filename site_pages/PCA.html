@@ -111,7 +111,232 @@
         Within this project, the aim of PCA is to reduce the dimensionality of the quantitative data in order to later classify poverty classes (or lack thereof).
         Preliminary exploratory data analysis leads to the prediction that some of the income variables may be redundant as there are both family and personal incomes that may contribute to overall financial status.
     </p>
+    <h3>Data Cleaning and Prep</h3>
+    <p>
+        The dataset used for PCA uses the same cleaned data for EDA and further cleaning is explained below.
+        To clean the dataset for PCA, first all non-numeric features in the data were dropped.
+        One label was used for later classification, but ultimately, this too was dropped prior to implementing PCA.
+        Succeeding PCA, this label was added back to the dataset for visualization purposes. 
+        Within the dataset itself, all rows that did not correspond to any of the 4 main categories within the poverty classification were additionally dropped.
+        This left the remaining dataset to hold 12 numerical features and the one label from the original 38 features. 
+        The raw dataset is displayed first succeeding this paragraph and the final cleaned dataset (after to implementing standardization for PCA) is displayed immediately below that.
+    </p>
+    <h5>Raw Dataset</h5>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>age</th>
+              <th>job_industry_recode</th>
+              <th>school_enroll_lastweek</th>
+              <th>employment</th>
+              <th>fam_size</th>
+              <th>...</th>
+              <th>fam_otc_med_costs</th>
+              <th>fam_rent_val</th>
+              <th>fips</th>
+              <th>state</th>
+              <th>state.1</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>1</th>
+              <td>67</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>4</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>2</th>
+              <td>74</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>60</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>4</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>3</th>
+              <td>66</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>1</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>4</th>
+              <td>68</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>1</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>5</th>
+              <td>52</td>
+              <td>Not in universe, or children</td>
+              <td>No</td>
+              <td>0</td>
+              <td>1</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>5 rows × 38 columns</p>
+        </div>
 
+    <h5>Cleaned Dataset</h5>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>age</th>
+              <th>fam_size</th>
+              <th>weekly_earnings</th>
+              <th>hours_worked</th>
+              <th>weeks_unemployed</th>
+              <th>...</th>
+              <th>family_earn_ly</th>
+              <th>fam_med_costs</th>
+              <th>fam_outofpocket_med_costs</th>
+              <th>fam_otc_med_costs</th>
+              <th>fam_rent_val</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>0</th>
+              <td>1.210869</td>
+              <td>-1.960160</td>
+              <td>-0.22594</td>
+              <td>-0.831263</td>
+              <td>-0.078909</td>
+              <td>...</td>
+              <td>-0.746156</td>
+              <td>-0.479016</td>
+              <td>-0.651771</td>
+              <td>-0.363262</td>
+              <td>-0.079946</td>
+            </tr>
+            <tr>
+              <th>1</th>
+              <td>1.511344</td>
+              <td>-1.960160</td>
+              <td>-0.22594</td>
+              <td>-0.831263</td>
+              <td>-0.078909</td>
+              <td>...</td>
+              <td>-0.746156</td>
+              <td>-0.479016</td>
+              <td>-0.644156</td>
+              <td>-0.318440</td>
+              <td>-0.079946</td>
+            </tr>
+            <tr>
+              <th>2</th>
+              <td>1.167944</td>
+              <td>0.291096</td>
+              <td>-0.22594</td>
+              <td>-0.831263</td>
+              <td>-0.078909</td>
+              <td>...</td>
+              <td>-0.746156</td>
+              <td>-0.479016</td>
+              <td>-0.651771</td>
+              <td>-0.363262</td>
+              <td>-0.079946</td>
+            </tr>
+            <tr>
+              <th>3</th>
+              <td>1.253794</td>
+              <td>0.291096</td>
+              <td>-0.22594</td>
+              <td>-0.831263</td>
+              <td>-0.078909</td>
+              <td>...</td>
+              <td>-0.746156</td>
+              <td>-0.479016</td>
+              <td>-0.651771</td>
+              <td>-0.363262</td>
+              <td>-0.079946</td>
+            </tr>
+            <tr>
+              <th>4</th>
+              <td>0.566993</td>
+              <td>0.291096</td>
+              <td>-0.22594</td>
+              <td>-0.831263</td>
+              <td>-0.078909</td>
+              <td>...</td>
+              <td>-0.422803</td>
+              <td>-0.466527</td>
+              <td>-0.477893</td>
+              <td>-0.363262</td>
+              <td>-0.079946</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>5 rows × 12 columns</p>
+        </div>
+          
     <h3>PCA with 2 Components</h3>
     <p>
         When reducing the dimensionality of the data to only two principal components, roughly 32% of the variance is explained by the two dimensions.
@@ -131,6 +356,7 @@
         Displayed below are the three principal components with the largest ability to expalin the most varince in the data.
     </p>
         <img src = '../site_pages/plots/three_component_pca.png' class = 'center'>
+    <h3>Conclusions</h3>
     <p>
         This begins to beg the question, how many principal components are needed?
         Below is a table displaying the cumulative explained variance with each marginal principal component.
@@ -138,6 +364,11 @@
         Ultimately, to effectively explain at least 95% of the data nearly all the principal components are needed as 11 of the 12 would be necessary.
         The table following this displays the top three eigenvalues in the data.
         These correspond to the same three eigenvalues used in the 3D image above.
+        This leaves all features necessary to explaine 95 % of the variance except for the family rental value. 
+        This makes sense within the data as said feature only explains income for landlords.
+        Through PCA, while not substantially, this does reduce the data within the set by one feature which still assists in improving computing efficiency.
+        Additionally, the most substantial features in explaining variability are age, federal gross income adjusted and weekly earnings as demonstrated by the values of the top three aigenvalues below.
+        Overall, PCA is not a substantial manner in reducing features within this specific dataset suggesting that there may be nonlinear relationships between the variables and other methods of dimension reduction may be necessary.
     </p>
     <h5 class = 'center'>Cumulative Explained Variance</h5>
     <p>

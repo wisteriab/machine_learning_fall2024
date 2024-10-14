@@ -60,6 +60,25 @@
         a {
             text-decoration: none;
         }    
+
+        h1 {
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
+        h3 {
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
+        .center {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 50%;
+        }
     </style>
 </head>
 <body>
@@ -75,3 +94,536 @@
         <a href = "./DT.html">DT</a>
         <a href = "./Conclusions.html">Conclusions</a>
     </div>
+
+    <h1>Clustering</h1>
+    <h3>General Overview</h3>
+    <p>
+        For the sake of this project, three different types of clustering will be compared. 
+        All methods of clustering are unsupervised learning applications with aims to group data into distinct groups or clusters.
+        Different clustering methods use different algortihms to identify similarity of datapoints and find commonalities amongst the data.
+        The first method is hard clusting or partition clustering.
+        One such example of this is KMeans clustering.
+        Partition based clustering separates data into clear, distinct groups where data in one cluster has no possibility of existing within another group or cluster.
+        There are a few possible way to determine similarity in this case, though they are all dependent on distance metrics.
+        In the case of KMeans for example, distances from the center of a grouping (the centroid) are used to find all the points closest and are classified based on the group that pertains to the centroid.
+        There are multiple ways to masure distances.
+        The most common is Euclidean Distance which is based on the linear distance between two points, but there exists others such as cosine similarity that is based on the angles of vectors between two points.
+        The latter is supremely beneficial in high dimensional data.
+        Other methods of partition clustering, such as density clustering (DBClust is used in the following analysis) are based on densities of points.
+        That is, the distance of points to one another rather than to a fixed centroid, i.e. dense areas of points. 
+        This method allows for non-fixed variances in the data and can be more dynamic if groups of data are not circular or spherical around the centroid.
+        The below image demonstrates partition clustering.
+    </p>
+        <h5 class = "center">Partition Clustering Visualization</h5>
+        <img src = "./plots/KMeans.png" class = 'center'>
+    <p>
+        Outside of partitional clustering and density based clustered, there also exists heirarchical clustering.
+        In the case of heirarchical clustering one data point can exist within multiple clusters or groupings.
+        In a simple example, let there exist a set of genres of books.
+        One book exists to a grouping based on the author and also within a grouping of the genre wherein multiple authors make up a genre.
+        That same book exists within a group of clusters based on a heirarchy.
+        There are two different ways to build heirarchical clusters, agglomorative and divisive.
+        Agglomorative is a bottom up approach in the same way that the book example was. 
+        Divisive, on the other hand is a top down approach that would split all books into genres, then authors, then individual books.
+        In this project clustering will be used to assist in finding commonalities in the data (particularly between the features themselves) to identify key features that could help indicate poverty.
+        The below image displays heirarchical clustering (from <a href = "https://www.statisticshowto.com/hierarchical-clustering/">StatisticsHowTo</a>).
+        Based on the visulaizations of the data as seen in the PCA tab, density based partition data makes the most sense intiially.
+        This is based on the fact that one group of people cannot exist in multiple proportions of impoverishment (where heirarchical clustering would apply) and there are few separations in the data (where Kmeans partition clustering would apply).
+    </p>
+        <h5 class = "center">Heirarchical Clustering Visualization</h5>
+        <img src = "./plots/heirarchical.png" class = "center">
+    <h3>Data Cleaning and Prep</h3>
+    <p>
+        The cleaning process comes as a result of the work done under the PCA tab.
+        A complete explanation of principal component analysis (PCA) can be viewed by clicking the PCA link in the homebar above.
+        Simply put, the raw dataset selected for the use of clustering was pulled from the original cleaned dataset in the EDA tab. 
+        The raw data maintians 38 total variables for use and was filtered down to include only quantitative variables.
+        This left the dataset with 12 variables from the original 38. 
+        Following this, each of the continuous, quantitative variables was normalized using StandardScalar from the sklearn library.
+        From here, PCA was implemented. That is, covariance matrices were created and their coreresponding eigenvalues and eigenvectors were calculated.
+        This enables the new principal components to be ranked in order of magnitude to select only those features necessary to maximize variability explanation.
+        It was found that in order to explaing 95% of the variability, 11 of the 12 features were necessary.
+        For ease of explainability and understanding in visualization, only the top 3 principal components were used in clustering below.
+        As such only 43% of the variability is explained by the following data. 
+        Below both the raw and the clean datasets are displayed. 
+        First is the raw data used prior to PCA and second is the new dataset following PCA and reducing the dimensionality to the top three principal components.
+        There are ultimately the three principal components, a label for classifying poverty classes (also further explained in the PCA tab), and 145,582 rows.
+    </p>
+    <h5>Raw Dataset</h5>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>age</th>
+              <th>job_industry_recode</th>
+              <th>school_enroll_lastweek</th>
+              <th>employment</th>
+              <th>fam_size</th>
+              <th>...</th>
+              <th>fam_otc_med_costs</th>
+              <th>fam_rent_val</th>
+              <th>fips</th>
+              <th>state</th>
+              <th>state.1</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>1</th>
+              <td>67</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>4</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>2</th>
+              <td>74</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>60</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>4</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>3</th>
+              <td>66</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>1</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>4</th>
+              <td>68</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>1</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>5</th>
+              <td>52</td>
+              <td>Not in universe, or children</td>
+              <td>No</td>
+              <td>0</td>
+              <td>1</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>5 rows × 38 columns</p>
+        </div>
+    <h5>Cleaned Dataset</h5>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>principal_component1</th>
+              <th>principal_component2</th>
+              <th>principal_component3</th>
+              <th>poverty_ratio</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>1</th>
+              <td>-1.706124</td>
+              <td>-0.683082</td>
+              <td>1.572728</td>
+              <td>BELOW POVERTY LEVEL</td>
+            </tr>
+            <tr>
+              <th>2</th>
+              <td>-1.368367</td>
+              <td>0.148545</td>
+              <td>0.576322</td>
+              <td>BELOW POVERTY LEVEL</td>
+            </tr>
+            <tr>
+              <th>3</th>
+              <td>-1.363368</td>
+              <td>0.104961</td>
+              <td>0.617455</td>
+              <td>150 AND ABOVE THE POVERTY LEVEL</td>
+            </tr>
+            <tr>
+              <th>4</th>
+              <td>-0.947033</td>
+              <td>0.103809</td>
+              <td>0.097157</td>
+              <td>150 AND ABOVE THE POVERTY LEVEL</td>
+            </tr>
+            <tr>
+              <th>5</th>
+              <td>-0.877239</td>
+              <td>-0.201467</td>
+              <td>0.130536</td>
+              <td>150 AND ABOVE THE POVERTY LEVEL</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+    
+    <h3>Analysis and Conclusions</h3>
+    <h3>KMeans</h3>
+    <p>
+        Kmeans provides insightes into potential groupings within the data.
+        This comes from the unsupervised portion of machine learning and as such allows the computer to find any commonalities as described in the overview.
+        Within the dataset 3 separate cluster counts were used: 2, 6, and 12. 
+        Between each of the sets, 6 clusters was found to be the most effective at clustering via the silhouette method with a score of 0.39 as displayed in the table below.
+    </p>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>Cluster Count</th>
+              <th>Silhouette Scores</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>0</th>
+              <td>2 Clusters</td>
+              <td>0.321405</td>
+            </tr>
+            <tr>
+              <th>1</th>
+              <td>6 Clusters</td>
+              <td>0.387264</td>
+            </tr>
+            <tr>
+              <th>2</th>
+              <td>12 Clusters</td>
+              <td>0.327608</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+
+        <p>
+            Furthermore, the 3D display of each of the clusters is displayed below. 
+            Due to the high volume of datapoints, the centroid of some of the clusters is more difficult to see in 3D as they are overlayed by so many points.
+            In each graph the centroid is in black while each of the clusters has a high opacity such that they can still be viewed.
+            As there are so many points, the x,y,z coordinates of each centroid is displayed in addition to the graphs for a more complete understanding of each graph.
+        </p>
+        <h5 class = "center">2 Cluster KMeans</h5>
+        <img src = '../site_pages/plots/cluster_2.png' class = "center">
+        <h5 class = "center">6 Cluster KMeans</h5>
+        <img src = "../site_pages/plots/cluster_6.png" class = "center">
+        <h5 class = "center">12 Cluster KMeans</h5>
+        <img src = '../site_pages/plots/cluster_12.png' class = "center">
+        <h5> Centroid Coordinates</h5>
+        <div>
+            <style scoped>
+                .dataframe tbody tr th:only-of-type {
+                    vertical-align: middle;
+                }
+            
+                .dataframe tbody tr th {
+                    vertical-align: top;
+                }
+            
+                .dataframe thead th {
+                    text-align: right;
+                }
+            </style>
+            <table border="1" class="dataframe">
+              <thead>
+                <tr style="text-align: right;">
+                  <th></th>
+                  <th>2 Cluster X Coordinate</th>
+                  <th>2 Cluster Y Coordinate</th>
+                  <th>2 CLuster Z Coordinate</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>0</th>
+                  <td>0.123807</td>
+                  <td>1.064841</td>
+                  <td>-0.588371</td>
+                </tr>
+                <tr>
+                  <th>1</th>
+                  <td>-0.086266</td>
+                  <td>-0.747484</td>
+                  <td>0.413069</td>
+                </tr>
+              </tbody>
+            </table>
+            </div>
+
+        <div>
+            <style scoped>
+                .dataframe tbody tr th:only-of-type {
+                    vertical-align: middle;
+                }
+            
+                .dataframe tbody tr th {
+                    vertical-align: top;
+                }
+            
+                .dataframe thead th {
+                    text-align: right;
+                }
+            </style>
+            <table border="1" class="dataframe">
+                <thead>
+                <tr style="text-align: right;">
+                    <th></th>
+                    <th>6 Cluster X Coordinate</th>
+                    <th>6 Cluster Y Coordinate</th>
+                    <th>6 Cluster Z Coordinate</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th>0</th>
+                    <td>-0.363564</td>
+                    <td>1.040277</td>
+                    <td>-0.768590</td>
+                </tr>
+                <tr>
+                    <th>1</th>
+                    <td>-0.962964</td>
+                    <td>-0.275755</td>
+                    <td>0.910779</td>
+                </tr>
+                <tr>
+                    <th>2</th>
+                    <td>3.289142</td>
+                    <td>-2.807428</td>
+                    <td>-2.054725</td>
+                </tr>
+                <tr>
+                    <th>3</th>
+                    <td>2.453070</td>
+                    <td>1.152768</td>
+                    <td>1.044776</td>
+                </tr>
+                <tr>
+                    <th>4</th>
+                    <td>0.324981</td>
+                    <td>-0.979792</td>
+                    <td>-0.062148</td>
+                </tr>
+                <tr>
+                    <th>5</th>
+                    <td>31.863514</td>
+                    <td>15.029574</td>
+                    <td>19.177105</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+        <div>
+            <style scoped>
+                .dataframe tbody tr th:only-of-type {
+                    vertical-align: middle;
+                }
+            
+                .dataframe tbody tr th {
+                    vertical-align: top;
+                }
+            
+                .dataframe thead th {
+                    text-align: right;
+                }
+            </style>
+            <table border="1" class="dataframe">
+                <thead>
+                <tr style="text-align: right;">
+                    <th></th>
+                    <th>12 Cluster X Coordinate</th>
+                    <th>12 Cluster Y Coordinate</th>
+                    <th>12 Cluster Z Coordinate</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th>0</th>
+                    <td>-0.724936</td>
+                    <td>1.043482</td>
+                    <td>-0.803771</td>
+                </tr>
+                <tr>
+                    <th>1</th>
+                    <td>0.757479</td>
+                    <td>-1.614351</td>
+                    <td>-0.090507</td>
+                </tr>
+                <tr>
+                    <th>2</th>
+                    <td>2.013607</td>
+                    <td>0.689833</td>
+                    <td>1.103491</td>
+                </tr>
+                <tr>
+                    <th>3</th>
+                    <td>0.685373</td>
+                    <td>1.312301</td>
+                    <td>-0.496028</td>
+                </tr>
+                <tr>
+                    <th>4</th>
+                    <td>-0.863966</td>
+                    <td>0.229796</td>
+                    <td>0.723783</td>
+                </tr>
+                <tr>
+                    <th>5</th>
+                    <td>33.270337</td>
+                    <td>15.552971</td>
+                    <td>19.868917</td>
+                </tr>
+                <tr>
+                    <th>6</th>
+                    <td>2.480305</td>
+                    <td>-3.109665</td>
+                    <td>-0.847203</td>
+                </tr>
+                <tr>
+                    <th>7</th>
+                    <td>6.519907</td>
+                    <td>2.880585</td>
+                    <td>3.257372</td>
+                </tr>
+                <tr>
+                    <th>8</th>
+                    <td>2.263098</td>
+                    <td>0.664370</td>
+                    <td>-3.307271</td>
+                </tr>
+                <tr>
+                    <th>9</th>
+                    <td>7.237232</td>
+                    <td>-6.592722</td>
+                    <td>-4.625584</td>
+                </tr>
+                <tr>
+                    <th>10</th>
+                    <td>-0.009115</td>
+                    <td>-0.457823</td>
+                    <td>-0.162840</td>
+                </tr>
+                <tr>
+                    <th>11</th>
+                    <td>-1.072300</td>
+                    <td>-1.012764</td>
+                    <td>1.108049</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+    <h3>Heirarchical Clustering</h3>
+    <p>
+        One of the substantial issues with heirarchical Clustering for large datasets is the memory dependency.
+        This comes from the time complexity of the algorithm being O(N^3).
+        This means that parallelization is necessary and chunking data is absolutely vital to efficiently run the code and create an effective dendrogram to display heirarchical data.
+        In the case of this code, running the heirarchical clustering on the 3 dimensional PCA data required nearly 80 GB of RAM for creation with over 145k vectors to compute distances between.
+        For the sake of this project, the data was sampled in groups of 10,000 rows to cluster and create the dendrogram.
+        10,000 randomized rows allows for the simplified data to represent the overall dataset and can still provide insight into commonalities and larger clusters within the data.
+        The benefit of the dendrogram using cosine similarity in this case is that the clusters don't begin in a randomized state and can thus find similarities more consistently.
+        As displayed below, however, is the substantial decay between classes, which makes data substantially harder to interpret.
+        Because of the high computing power needed to cluster the data in this way and the lack of understanding for the broader audience (for this dataset) KMeans clustering is argued to be the better clustering method for this project between these two.
+        For the following dendrogram and heirarchical clustering, <a href = "https://docs.scipy.org/doc/scipy/reference/cluster.hierarchy.html">scipy's heirarchical library</a> was used.
+        Below first demonstrates the sampled dataset that represents the larger dataset and the heirarchical clusters using cosine distance.
+        For user understanding, further below is an even further sampled example that only uses 100 points.
+        The latter, more readable dendrogram was not used in analysis and is only an aid for easier, quicker understanding.
+    </p>
+
+    <h5 class = 'center'>Full Dendrogram</h5>
+    <img src = './plots/dendrogram_full.png' class = "center">
+    <h5 class = 'center'>Simple Dendrogram</h5>
+    <img src = './plots/dendrogram_sample.png' class = "center">
+
+    <h3>Density Based Clustering and Clustering Conclusions</h3>
+    <p>
+        Lastly, sklearns DBSCAN package for density based clustering was used to cluster the dataset.
+        Surprisingly fewer groups were found at varying eps metric values ranging from 0.0001 to 0.5. 
+        The eps metric within the algorithm is used to limit how far the algorithm will search, again using the cosine distance in this case, before ending the edge of a cluster.
+        This led to 1 clusters in the dataset which demonstrates a lack of an ability to cluster the data using cosine distances.
+        Using a euclidean distance, however 3 distinct clusters were found. 
+        It also had a silhouette score of -0.20, when using the euclidean distance as it is not possible to measure the silhouette score with only 1 cluster as in the cosine distance, suggesting that density based scanning performed worse than Kmeans.
+        Ultimately for clustering purposes, it is hard to in favor of heirarchical clustering due to the high computing power necessary and the memorey need to complete the algorithm even if it is more robust at finding commonalities in the data.
+        KMeans and DBScan both performed similarly from a computing perspective, but when looking the difference between ability to identify and create unique clusters, KMeans outperformed DBscan.
+        This means that for the sake of clustering Kmeans reigns supreme in its ability to identify similarities in amongst the top three principal components.
+        Below displays both the cosine distance clustering via DBscan (first) and the euclidean distance clustering (latter)
+    </p>
+    <br>
+    <br>
+    <img src = './plots/dbscan.png' class = 'center'>
+    <img src = './plots/dbscan_euclidean.png' class = 'center'>
