@@ -95,4 +95,642 @@
         <a href = "./Conclusions.html">Conclusions</a>
     </div>
 
-<h1></h1>
+<h1>Association Rule Mining</h1>
+<h3>Overview and Introduction</h3>
+
+    <p>
+        Association Rule Mining (ARM) is a process by which data scientists and analysts search through data to find items that frequently end up associated with one another.
+        This type of machine learning algorithm is most frequently used for transactions specifically (where the term transactional data is also derived from) such as when a customer purchases goods.
+        It is not unique to transactions, as seen below, and can provide insight into how features interact with one another in a dataset.
+        Transactional datasets themselves are datasets that are entirely unlabeled and each row represents a grouping of transactions.
+        From here association rule mining can begin.
+        The process of ARM is quite straightforward, using a basic threshold one repetitvely searches through the data to see which items appear more frequently than said threshold.
+        All other items are then removed from the next search and the process continues until the last item or group of items no longer is above the minimum threshold.
+        These groups of items in association rule mining are called rules.
+        This process is called pruning (similar to pruning ripe fruit from a tree where ripe fruit is picked leaving the new fruit to grow) and is displayed below.
+        Said image is sourced from <a href = 'https://towardsdatascience.com/complete-guide-to-association-rules-2-2-c92072b56c84'>Medium.com</a>
+        Said algorithm is formally named Apriori and is the more common method of implementing ARM.
+    </p>
+    <p>
+        The threshold used is called the <i>support</i> and represents the probability that an item appears within the dataset.
+        It is calculated by taking the number of times said item appears divided by the total number of items.
+        Confidence, another metric used for measuring frequency of itemsets within a transaction database, helps to order and associate the items by measuring the probability an item appears with one another given that the first item is involved in the transaction.
+        It is calculated by taking the total number of transactions that contain both the original and new item and dividing by the total number of transactions containing the original item.
+        The last metric used within ARM is lift and is the more confusing fo the three to originally understand.
+        Lift is a measure of strength, that is how strongly associated is one rule to the itemsets themselves.
+        The greater the lift, the stronger an association is within the dataset and thus is more likely to appear,
+        Lift is calculated by dividing the confidence of a rule by its support.
+        Each of these equations is displayed below and is sourced from <a href = "https://www.researchgate.net/figure/Formulae-for-support-confidence-and-lift-for-the-association-rule-X-Y_fig1_337999958">Research Gate</a>
+    </p>
+    <img src = './plots/equations.png' class = center>
+    <img src = './plots/pruning.png' class = center>
+    <h3>Data Cleaning and Prep</h3>
+    <p>
+        The largest issue in prepping data for this project was the need to mimic transactional data using the overall census dataset.
+        To do this categorical variables were one hot encoding in accordance to the needs of mlxtend, the package used for Apriori and Association Rule Mining.
+        Prior to this though, the proper columns needed to be selected.
+        For transactional data, no labels may exist, and no quantities can be used.
+        Since that original dataset used (displayed below as the raw data sourced from the EDA tab) is a mixed dataset, all of the quatitative features needed to be dropped in the same vein that categorical features needed to be dropped for PCA and Clustering.
+        This immediately reduced the dimensionality by half.
+        From there, the most full features were used, that is the features that displayed the fewest instances of not being in universe of the category or not applicable to the individual.
+        This left 7 major columns to be remapped and used: job industry, highest education, sex, age (coded into groupings), health insurance coverage last year, marital status, and the state an individual was from.
+        Lastly, all instances/rows where an item was found to have a not applicable or a not in universe was dropped entirely.
+        Then, one hot encoding could be used prior to implementing Apriori from mlextend.
+        The raw dataset is displayed first followed by the newly cleaned, transactional dataset.
+        In this case the <i>"transactions"</i> are similar to that of character creation where one transaction represents a feature of a person.
+        Each item can only appear once and various combinations make up the person.
+        This exactly mimics the rules for a transactional dataset aside from one fact, each individual must purchase the same number of items so to say.
+    </p>
+    <h5 class = 'center'>Raw Data</h5>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>age</th>
+              <th>job_industry_recode</th>
+              <th>school_enroll_lastweek</th>
+              <th>employment</th>
+              <th>fam_size</th>
+              <th>...</th>
+              <th>fam_otc_med_costs</th>
+              <th>fam_rent_val</th>
+              <th>fips</th>
+              <th>state</th>
+              <th>state.1</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>1</th>
+              <td>67</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>4</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>2</th>
+              <td>74</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>60</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>4</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>3</th>
+              <td>66</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>1</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>4</th>
+              <td>68</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>1</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>5</th>
+              <td>52</td>
+              <td>Not in universe, or children</td>
+              <td>No</td>
+              <td>0</td>
+              <td>1</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>5 rows × 38 columns</p>
+        </div>
+
+    <h5 class = 'center'>Cleaned Data</h5>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>job_industry_recode_Architecture and engineering occupations</th>
+              <th>job_industry_recode_Armed Forces</th>
+              <th>job_industry_recode_Arts, design, entertainment, sports, and media occupations</th>
+              <th>job_industry_recode_Building and grounds cleaning and maintenance occupations</th>
+              <th>job_industry_recode_Business and financial operations occupations</th>
+              <th>...</th>
+              <th>marital_status_Marr-civ sp present</th>
+              <th>marital_status_Marr-spouse absent</th>
+              <th>marital_status_Never married</th>
+              <th>marital_status_Separated</th>
+              <th>marital_status_Widowed</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>6</th>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>10</th>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>12</th>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>29</th>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>30</th>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>5 rows × 112 columns</p>
+        </div>
+
+    <h3>Results and Conclusions</h3>
+    <p>
+        Below are 3 figures to demonstrate the top 15 support, confidence, and lifts for the rules discovered within the dataset.
+        The first column, the antecedent, represents the rule (whether it be a single item or group of items), that associates with the consequent it goes with (the new item in the ruleset).
+        The following column corresponds to the lift, the support, and the confidence sorted from greatest to least.
+        Lastly, a scatterplot for each of the consequents is displayed to show the relation of the lift and the confidence for each item based on a ruleset to give an idea of the importance of each group of consequents within the dataset.
+        It is noted that while the consequents of each of the 3 tables all have high similarity (stemming from the need to use a low minimum support threshold such that sufficient rules could be discovered), the antecedents were where many conculsions about the dataset were made.
+        This comes from the fact that many of the antecedents are unique or have multiple items in them and give way to substantial groupings within the dataset that gives way to potential future questions and insights into how these individuals separate themselves from the rest.
+    </p>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>antecedents</th>
+              <th>consequents</th>
+              <th>support</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>46</th>
+              <td>(marital_status_Marr-civ sp present)</td>
+              <td>(health_insurance_ly_Coverage for all of year)</td>
+              <td>0.461555</td>
+            </tr>
+            <tr>
+              <th>24</th>
+              <td>(sex_Male)</td>
+              <td>(health_insurance_ly_Coverage for all of year)</td>
+              <td>0.436958</td>
+            </tr>
+            <tr>
+              <th>23</th>
+              <td>(sex_Female)</td>
+              <td>(health_insurance_ly_Coverage for all of year)</td>
+              <td>0.428082</td>
+            </tr>
+            <tr>
+              <th>47</th>
+              <td>(marital_status_Never married)</td>
+              <td>(health_insurance_ly_Coverage for all of year)</td>
+              <td>0.309207</td>
+            </tr>
+            <tr>
+              <th>148</th>
+              <td>(sex_Male, marital_status_Marr-civ sp present)</td>
+              <td>(health_insurance_ly_Coverage for all of year)</td>
+              <td>0.242134</td>
+            </tr>
+            <tr>
+              <th>18</th>
+              <td>(highest_education_Bachelor's degree (BA,AB,BS))</td>
+              <td>(health_insurance_ly_Coverage for all of year)</td>
+              <td>0.230252</td>
+            </tr>
+            <tr>
+              <th>138</th>
+              <td>(sex_Female, marital_status_Marr-civ sp present)</td>
+              <td>(health_insurance_ly_Coverage for all of year)</td>
+              <td>0.219421</td>
+            </tr>
+            <tr>
+              <th>20</th>
+              <td>(highest_education_High school graduate-high school diploma)</td>
+              <td>(health_insurance_ly_Coverage for all of year)</td>
+              <td>0.208281</td>
+            </tr>
+            <tr>
+              <th>139</th>
+              <td>(marital_status_Never married, sex_Female)</td>
+              <td>(health_insurance_ly_Coverage for all of year)</td>
+              <td>0.150211</td>
+            </tr>
+            <tr>
+              <th>109</th>
+              <td>(highest_education_Bachelor's degree (BA,AB,BS), marital_status_Marr-civ sp present)</td>
+              <td>(health_insurance_ly_Coverage for all of year)</td>
+              <td>0.140321</td>
+            </tr>
+            <tr>
+              <th>35</th>
+              <td>(age_recode_gt15_40 to 44 years)</td>
+              <td>(health_insurance_ly_Coverage for all of year)</td>
+              <td>0.137025</td>
+            </tr>
+            <tr>
+              <th>34</th>
+              <td>(age_recode_gt15_35 to 39 years)</td>
+              <td>(health_insurance_ly_Coverage for all of year)</td>
+              <td>0.133909</td>
+            </tr>
+            <tr>
+              <th>22</th>
+              <td>(highest_education_Some College But No Degree)</td>
+              <td>(health_insurance_ly_Coverage for all of year)</td>
+              <td>0.129780</td>
+            </tr>
+            <tr>
+              <th>33</th>
+              <td>(age_recode_gt15_30 to 34 years)</td>
+              <td>(health_insurance_ly_Coverage for all of year)</td>
+              <td>0.125559</td>
+            </tr>
+            <tr>
+              <th>36</th>
+              <td>(age_recode_gt15_45 to 49 years)</td>
+              <td>(health_insurance_ly_Coverage for all of year)</td>
+              <td>0.121955</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <div>
+            <style scoped>
+                .dataframe tbody tr th:only-of-type {
+                    vertical-align: middle;
+                }
+            
+                .dataframe tbody tr th {
+                    vertical-align: top;
+                }
+            
+                .dataframe thead th {
+                    text-align: right;
+                }
+            </style>
+            <table border="1" class="dataframe">
+              <thead>
+                <tr style="text-align: right;">
+                  <th></th>
+                  <th>antecedents</th>
+                  <th>consequents</th>
+                  <th>lift</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>151</th>
+                  <td>(age_recode_gt15_18 and 19 years)</td>
+                  <td>(marital_status_Never married, health_insurance_ly_Coverage for all of year)</td>
+                  <td>2.753880</td>
+                </tr>
+                <tr>
+                  <th>25</th>
+                  <td>(age_recode_gt15_16 and 17 years)</td>
+                  <td>(marital_status_Never married)</td>
+                  <td>2.594196</td>
+                </tr>
+                <tr>
+                  <th>150</th>
+                  <td>(age_recode_gt15_18 and 19 years, health_insurance_ly_Coverage for all of year)</td>
+                  <td>(marital_status_Never married)</td>
+                  <td>2.592506</td>
+                </tr>
+                <tr>
+                  <th>27</th>
+                  <td>(age_recode_gt15_18 and 19 years)</td>
+                  <td>(marital_status_Never married)</td>
+                  <td>2.591455</td>
+                </tr>
+                <tr>
+                  <th>153</th>
+                  <td>(health_insurance_ly_Coverage for all of year, age_recode_gt15_20 and 21 years)</td>
+                  <td>(marital_status_Never married)</td>
+                  <td>2.504456</td>
+                </tr>
+                <tr>
+                  <th>29</th>
+                  <td>(age_recode_gt15_20 and 21 years)</td>
+                  <td>(marital_status_Never married)</td>
+                  <td>2.490214</td>
+                </tr>
+                <tr>
+                  <th>207</th>
+                  <td>(age_recode_gt15_22 to 24 years, sex_Male, health_insurance_ly_Coverage for all of year)</td>
+                  <td>(marital_status_Never married)</td>
+                  <td>2.329041</td>
+                </tr>
+                <tr>
+                  <th>140</th>
+                  <td>(age_recode_gt15_22 to 24 years, sex_Male)</td>
+                  <td>(marital_status_Never married)</td>
+                  <td>2.323990</td>
+                </tr>
+                <tr>
+                  <th>155</th>
+                  <td>(age_recode_gt15_22 to 24 years, health_insurance_ly_Coverage for all of year)</td>
+                  <td>(marital_status_Never married)</td>
+                  <td>2.297858</td>
+                </tr>
+                <tr>
+                  <th>31</th>
+                  <td>(age_recode_gt15_22 to 24 years)</td>
+                  <td>(marital_status_Never married)</td>
+                  <td>2.286676</td>
+                </tr>
+                <tr>
+                  <th>199</th>
+                  <td>(age_recode_gt15_22 to 24 years, sex_Female, health_insurance_ly_Coverage for all of year)</td>
+                  <td>(marital_status_Never married)</td>
+                  <td>2.266194</td>
+                </tr>
+                <tr>
+                  <th>129</th>
+                  <td>(age_recode_gt15_22 to 24 years, sex_Female)</td>
+                  <td>(marital_status_Never married)</td>
+                  <td>2.246178</td>
+                </tr>
+                <tr>
+                  <th>54</th>
+                  <td>(job_industry_recode_Construction and extraction occupations, highest_education_High school graduate-high school diploma)</td>
+                  <td>(sex_Male)</td>
+                  <td>1.858968</td>
+                </tr>
+                <tr>
+                  <th>168</th>
+                  <td>(job_industry_recode_Construction and extraction occupations, marital_status_Marr-civ sp present, health_insurance_ly_Coverage for all of year)</td>
+                  <td>(sex_Male)</td>
+                  <td>1.853528</td>
+                </tr>
+                <tr>
+                  <th>56</th>
+                  <td>(job_industry_recode_Construction and extraction occupations, marital_status_Marr-civ sp present)</td>
+                  <td>(sex_Male)</td>
+                  <td>1.852405</td>
+                </tr>
+              </tbody>
+            </table>
+            </div>
+            <div>
+                <style scoped>
+                    .dataframe tbody tr th:only-of-type {
+                        vertical-align: middle;
+                    }
+                
+                    .dataframe tbody tr th {
+                        vertical-align: top;
+                    }
+                
+                    .dataframe thead th {
+                        text-align: right;
+                    }
+                </style>
+                <table border="1" class="dataframe">
+                  <thead>
+                    <tr style="text-align: right;">
+                      <th></th>
+                      <th>antecedents</th>
+                      <th>consequents</th>
+                      <th>confidence</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th>25</th>
+                      <td>(age_recode_gt15_16 and 17 years)</td>
+                      <td>(marital_status_Never married)</td>
+                      <td>0.977411</td>
+                    </tr>
+                    <tr>
+                      <th>150</th>
+                      <td>(age_recode_gt15_18 and 19 years, health_insurance_ly_Coverage for all of year)</td>
+                      <td>(marital_status_Never married)</td>
+                      <td>0.976774</td>
+                    </tr>
+                    <tr>
+                      <th>27</th>
+                      <td>(age_recode_gt15_18 and 19 years)</td>
+                      <td>(marital_status_Never married)</td>
+                      <td>0.976378</td>
+                    </tr>
+                    <tr>
+                      <th>59</th>
+                      <td>(job_industry_recode_Education, training, and library occupations, highest_education_Master's degree (MA,MS,MENG,MED,MSW,MBA))</td>
+                      <td>(health_insurance_ly_Coverage for all of year)</td>
+                      <td>0.970079</td>
+                    </tr>
+                    <tr>
+                      <th>192</th>
+                      <td>(highest_education_Master's degree (MA,MS,MENG,MED,MSW,MBA), sex_Female, marital_status_Marr-civ sp present)</td>
+                      <td>(health_insurance_ly_Coverage for all of year)</td>
+                      <td>0.967755</td>
+                    </tr>
+                    <tr>
+                      <th>51</th>
+                      <td>(job_industry_recode_Business and financial operations occupations, marital_status_Marr-civ sp present)</td>
+                      <td>(health_insurance_ly_Coverage for all of year)</td>
+                      <td>0.967688</td>
+                    </tr>
+                    <tr>
+                      <th>122</th>
+                      <td>(highest_education_Master's degree (MA,MS,MENG,MED,MSW,MBA), marital_status_Marr-civ sp present)</td>
+                      <td>(health_insurance_ly_Coverage for all of year)</td>
+                      <td>0.964974</td>
+                    </tr>
+                    <tr>
+                      <th>169</th>
+                      <td>(job_industry_recode_Education, training, and library occupations, sex_Female, marital_status_Marr-civ sp present)</td>
+                      <td>(health_insurance_ly_Coverage for all of year)</td>
+                      <td>0.964393</td>
+                    </tr>
+                    <tr>
+                      <th>188</th>
+                      <td>(highest_education_Bachelor's degree (BA,AB,BS), marital_status_Marr-civ sp present, age_recode_gt15_50 to 54 years)</td>
+                      <td>(health_insurance_ly_Coverage for all of year)</td>
+                      <td>0.964055</td>
+                    </tr>
+                    <tr>
+                      <th>53</th>
+                      <td>(job_industry_recode_Computer and mathematical science occupations, marital_status_Marr-civ sp present)</td>
+                      <td>(health_insurance_ly_Coverage for all of year)</td>
+                      <td>0.963515</td>
+                    </tr>
+                    <tr>
+                      <th>54</th>
+                      <td>(job_industry_recode_Construction and extraction occupations, highest_education_High school graduate-high school diploma)</td>
+                      <td>(sex_Male)</td>
+                      <td>0.962532</td>
+                    </tr>
+                    <tr>
+                      <th>172</th>
+                      <td>(job_industry_recode_Management occupations, highest_education_Bachelor's degree (BA,AB,BS), marital_status_Marr-civ sp present)</td>
+                      <td>(health_insurance_ly_Coverage for all of year)</td>
+                      <td>0.962372</td>
+                    </tr>
+                    <tr>
+                      <th>187</th>
+                      <td>(highest_education_Bachelor's degree (BA,AB,BS), marital_status_Marr-civ sp present, age_recode_gt15_45 to 49 years)</td>
+                      <td>(health_insurance_ly_Coverage for all of year)</td>
+                      <td>0.962162</td>
+                    </tr>
+                    <tr>
+                      <th>170</th>
+                      <td>(job_industry_recode_Healthcare practitioner and technical occupations, sex_Female, marital_status_Marr-civ sp present)</td>
+                      <td>(health_insurance_ly_Coverage for all of year)</td>
+                      <td>0.961607</td>
+                    </tr>
+                    <tr>
+                      <th>193</th>
+                      <td>(sex_Male, highest_education_Master's degree (MA,MS,MENG,MED,MSW,MBA), marital_status_Marr-civ sp present)</td>
+                      <td>(health_insurance_ly_Coverage for all of year)</td>
+                      <td>0.961415</td>
+                    </tr>
+                  </tbody>
+                </table>
+                </div>
+    <h5 class = 'center'>Association Rule Mining Via Apriori as a Visualization</h5>
+    <img src = './plots/arm_analysis.png' class = center>
+
+    <p>
+        There are a few substantial conclusions that come from Association Rule Mining for the sake fo this data and potential questions.
+        The first comes from the high presence of total health coverage last year in the dataset. 
+        All instances where people where not in universe or did not apply to the above were dropped, and, in the case of association rule mining, if every item has the same item in a ruleset, it is no longer important and is thus no longer recorderd.
+        As such this pushes insights into the individuals who did NOT have health insurance last year and what their characteristics are that may have pushed them to lack such an important service.
+        For the sake of the question at large, how can net utility be improved, pursuing this topic can allow for suggestionsto be made to target said individuals and subsidize healthcare to improve the health of the population at large.
+        Additionally, looking to the antecedents for each of these, but most significantly the confidence, each of the individuals that was most confident to maintain coverage all came from high paying jobs, were highly educated, or both.
+        This begs the question of the importance of education. 
+        If it is the case that uneducated people are less likely to maintain health coverage, then it is highly likely that providing a space with easier access to education (or access to better education) may improve the overall health of the average person.
+        Lastly, amongst the antcedents, many of the rules feature marriage with spouse present as a substantial element.
+        This was originally a topic that was overlooked in the data, but provides insight into why these individuals may be more successful and will need to be pursued further.
+        Based on the above ARM, initial insights lead to the belief that marriage with a spouse present may bring greater income into the home or provide more opportunities to attain healthcare (more workign individuals to be covered by an employer).
+        Each of these conclusions lead to further questions that may well help to improve net utility in the United States.
+    </p>
