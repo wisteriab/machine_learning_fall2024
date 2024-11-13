@@ -60,6 +60,26 @@
         a {
             text-decoration: none;
         }    
+
+        h1 {
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
+        h3 {
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
+        .center {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 50%;
+        }
+
     </style>
 </head>
 <body>
@@ -75,3 +95,45 @@
         <a href = "./DT.html">DT</a>
         <a href = "./Conclusions.html">Conclusions</a>
     </div>
+
+    <h1>Naive Bayes Algorithms</h1>
+    <h3>Introduction</h3>
+    <p>
+        Naive Bayes is a supervised machine learning algorithm based on the principles of Bayesian statistics.
+        It is a generative model and is used for classifying datasets.
+        Bayesian Statistics refers to the calculation of probabilities for target variables based on prior events having had happened, and its' equation is displayed below (referenced from <a href = "https://www.freecodecamp.org/news/bayes-rule-explained/">freecodecamp.org</a>).
+        In the case of machine learning this prior event is represented through the presence of a feature or variable.
+        That is to question: is it possible to predict the probability the target variable belongs to a given class based on the presence or values of the features given.
+        For example, in the medical field, one could classify a tumor as cancerous or benign given that a blemish was already classified as a tumor.
+        Conditional probabilities become more difficult to calculate, however, as the events that have occurred are either correlated to one another or are highly dimensional.
+        Through naive bayes models, though, this problem becomes mute by making a <i>naive</i> assumption that the features present in a dataset are independent of one another.
+        This assumption makes calculation of the probability of the target variable to be less precise, but has traditionally performed highly in classification tasks.
+        Naive bayes, while highly capable and makes assumptions, does depend on specific inputs based on the parameters of a given distribution, leading to multiple types of naive bayesian models.
+        These models include: Multinomial, Categorical, Bernoulli, Gaussian, and Complement Naive Bayes and are explored further below.
+    </p>
+    <h3 class = "center">Naive Bayes Probability Calculation</h3>
+    <img src = "./plots/naive_bayes.png" class = "center">
+    <h3>Types of Naive Bayes Models</h3>
+    <p>
+        Each of the 5 types of bayesian models are based on the data provided and input into model development as they follow a specific parametric distribution or type of data input. 
+        Bernoulli bayesian models require the data inputs to be all bernoulli, that is that they follow a 0 or a 1 for all features.
+        This can be particularly helpful in one hot encoded or dummy variables.
+        One how encoding in this instance should only be used if it is a necessity of the dataset, otherwise it is recommended to use categorical naive bayes as is discussed next.
+        Bernoulli naive bayes calculates probabilities based on the bernoulli distribution where the probability of the presence of a feature is represented by p and its counterpart (1-p).
+        Categorical naive bayes similarly depends on all of the data being from categorical features.
+        While similar to bernoulli naive bayes where each feature requires the presence (or absence) of a category, categorical features are not limitted to binary representations.
+        As mentioned previously this works best (situation dependent) as opposed to one hot encoding by drasticiacally reducing the dimensionality of the dataset.
+        Moving away from categorical features leaves multinomial naive bayes and gaussian naive bayes which are similar in the same ways that bernoulli and categorical are, i.e. one is a case of the other.
+        Gaussian naive bayes is designed specifically for continuous variables that resemble the gaussian (normal) distribution.
+        Gaussian naive bayes can furhter extend into data that can be assumed to be normal and continuous despite not being exactly so.
+        One such example of data could be height wherein ther is a lower and upper bound and it is not perfectly continuous (as it can be discrete) but it does follow a typical gaussian.
+        Multinomial naive bayes is specifically used for discrete data.
+        Most often used in text data and text mining, these data types often feature counts or the presence of features.
+        This can technically be simplified to a bernoulli naive bayes, however, multinomial provides a more efficient and precise output based on frequency as well.
+        Lastly, complement naive bayes is a special case of multinomial naive bayes specifically designed for more unbalanced data.
+        This means that the target variables arent evenly (or close to evenly) distributed and one target is represented more than the others.
+    </p>
+    <h3>Data Prep and Cleaning</h3>
+    <p>
+        
+    </p>

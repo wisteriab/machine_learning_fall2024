@@ -60,6 +60,26 @@
         a {
             text-decoration: none;
         }    
+
+        h1 {
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
+        h3 {
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
+        .center {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 50%;
+        }
+
     </style>
 </head>
 <body>
@@ -75,3 +95,46 @@
         <a href = "./DT.html">DT</a>
         <a href = "./Conclusions.html">Conclusions</a>
     </div>
+
+    <h1>Linear and Logistic Regression</h1>
+
+    <p>
+        Linear regression is often the first studied machine learning models in statistics where one or more features is used to describe their impact on a dependent or target variable.
+        The final goal of linear regression is to find some sort of linear relationship between all of the variables and create a line (in simple linear regressions) or a plane (in mutliple linear regression) where each dimension has some predetermined weight that will impact the dependent variable.
+        That is to say that an increase of one in a given dimension will increase or decrease the value of the dependent variable by the new found weight.
+        Said weights are determined by minimizing the sum of the squared residuals across the domain of the problem, or, more specifically, by minimizing the difference of the actual value and their corresponding predicted value.
+        Linear regression ultimately aims to predict the value of a target variable using the values given from every input.
+    </p>
+
+    <p>
+        Logistic regression is another supervised learning algorithm used in prediction.
+        It is used to classify binary outcomes based on an activation function called the sigmoid.
+        In this, any value less than the threshold of the sigmoid is categorized as a 0 and anything greater is classified as a 1.
+        Similar to linear regression multiple inputs and their weights are used to determine the value, however in this case, all raw scores are returned between 0 and 1 and are normalized.
+        This effectively provides a probability of whether the outcome is in a particular class or not.
+    </p>
+
+    <p>
+        The two models themselves are closely related to one another, and their differences nuanced.
+        The most notable similarity being that the two models are used in supervised learning and require inputs that are quantitative and either binary (in the case of dummy variables) or continuous.
+        While the two are both used in prediction, they do have different goals as linear regression returns a continuous output and gives an estimated value based on the inputs.
+        Logistic regression on the other hand only ever returns a value between 0 and 1 and as such is used for binary categorization.
+        Furthermore, unlike linear regression, logistic regression does not aim to minimize the error, rather it used maximum likelihood estimation to optimize (or maximize) the likelihood that the parameters take on given values.
+    </p>
+
+    <p>
+        One particularly unique part of logistic regression is the use of the sigmoid function.
+        The sigmoid function is the key or the link that joins linear regression to a probability output that is then used to categorize a binary outcome as a 0 or 1.
+        The sigmoid itself is bounded between 0 and 1 as an output, while its inputs can exist from negative infinity to positive infinity.
+        Furthermore, the sigmoid is smooth and symmetrical.
+        An example of a sigmoid is demonstrated below alongside the equation for the sigmoid function and is referenced from <a href = "https://www.linkedin.com/pulse/logistic-regression-sigmoid-function-explained-plain-english-hsu/">LinkedIn</a>.
+    </p>
+    <h3 class = "center">The Sigmoid</h3>
+    <img src = "./plots/Sigmoid full.jpg" class = "center">
+
+    <p>
+        In order to get the parameters (or the respective weights corresponding to a given input), maximum likelihood estimation (MLE) is used.
+        MLE is often the better choice for non linear models (where linear models use minimizing the squares as in the case of OLS) as it is more generalized and often is more efficient at providing correct parameters.
+        The likelihood estimation of the function represents the probability of observing the outputs given the parameters of the model.
+        By maximizing the likelihood function, the optimal parameters yielded are effectively the most likely values for the weights that impact the dependent variable.
+    </p>

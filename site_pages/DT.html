@@ -60,6 +60,26 @@
         a {
             text-decoration: none;
         }    
+
+        h1 {
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
+        h3 {
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
+        .center {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 50%;
+        }
+
     </style>
 </head>
 <body>
@@ -75,3 +95,70 @@
         <a class = "active" href = "./DT.html">DT</a>
         <a href = "./Conclusions.html">Conclusions</a>
     </div>
+
+    <h1>Decision Trees</h1>
+    <h3>Introduction</h3>
+    <p>
+        Decision Trees are a method of partitioning data in supervised learning.
+        Through this a top down tree is designed in such a way that each parent node splits the data into 2 or more groups besed on the data itself.
+        For example the data could split based on categories or certain values (for continuous or discrete data) which feeds into another level of the tree.
+        Each location where a split occures is called a node and the split above it is called a parent node.
+        The original split/node is referred to as the root node.
+        Each set of sibling nodes exist within a given level of the tree. 
+        Lastly, the height of the tree is referred to as the depth.
+        Decision trees are particularly good at visualizing data for easy and quick interpretation of how the data feeds into the target variables and their respective classifications.
+        The ultimate goal in the decision trees is to see how partitioning the data leads to the target variables being classified as they are.
+        One common example of decision trees is medical practitioners.
+        They often use decision trees to classify illness by asking more specific, leading questions.
+        One could start with height, followed by weight, followed by symptoms, and lastly recent exposures to ultimately guide the doctor to the proper diagnosis.
+        Another example of a decision tree is displayed below for ease of understanding (referenced from <a href = "https://towardsdatascience.com/decision-tree-hugging-b8851f853486">TowardsDataScience.com</a>).
+    </p>
+    <h3 class = "center">A Simple Decision Tree</h3>
+    <img src = "./plots/decision_tree_simple.png" class = "center">
+    <p>
+        Decision tree efficiency and efficacy is often viewed through three specific measurements: the Gini index, information gain, and entropy.
+        Entropy is the measure of randomness, uncertainty, or imputiry within the dataset itself.
+        E.g. a measure of entropy of 0 means the data is perfectly pure (or homogenous) while a measurement of 1 means that the dataset is perfectly impure.
+        As one can infer from the above clarification, entropy is bounded between zero and one, and it is calculatied by taking the sum of the probability times the log (base 2) of the probability of a datapoint existing within a given category for all categories.
+        Information gain is an extension of entropy and enables data analysts and data scientists to understand how a node in a decision tree performs by the amount of entropy that is lost.
+        This is done by measuring the entropy both before and after a node is implemented.
+        The last measurement used in the efficacy of decision trees in the gini index, and is the most complex of the three.
+        The gini index is another way to measure randomness of the dataset but is used specifically from a probabilistic standpoint.
+        Said index is also a measurement between 0 and 1 and is the measurment of the likelihood of a feature being classified wrong at a specific point.
+        When the index is 0, then the node is determined to be pure and the probability of misclassification is 0.
+        All three of these are displayed below.
+    </p>
+    <h3 class = "center">Entropy Equation</h3>
+    <img src = "./plots/Entropy.png" class = "center">
+    <p class = "center">Referenced from <a href = "https://towardsdatascience.com/decision-tree-part-2-34b31b1dc328">here</a></p>
+    <h3 class = "center">Gini Index Equation</h3>
+    <img src = "./plots/gini_index.png" class = "center">
+    <p class = "center">Referenced from <a href = "https://stats.stackexchange.com/questions/477063/how-to-derive-equation-of-gini-index-used-in-decision-trees">here</a></p>
+    <p>
+        Using all three of these in tandem with one another is paramount to maximizing the efficiency of the decision tree.
+        More precisely, by maximizing both the information gain and reducing the gini index over time enables one to select the correct partition to use in a given node.
+        Because of this, there is a particular solution that is the most efficient in classification based on outcomes (and many that can be similarly helpful).
+        As such the goal of a decision tree is to reduce the entropy in the data set by maximizing the information gain in each level of the tree while minimizing either the entropy OR the gini index.
+        Without using both information gain and one other metric it becomes near impossible to maximize the efficacy of the nodes, ultimately making the tree less "greedy."
+        However, because it is possible to set the splits in the data at any point or value it is possible to create any number of trees that is equal to the number of data points by extending the depth or complexity of the tree.
+        It is also technically possible to create an infinite number of trees (by using ineffective data) in the case that the data is not disjoint and is circular leading to trees that feed into themselves and continue to split indefinitely.
+        This is explained futher below.
+    </p>
+    <h3>Data Cleaning and Prep</h3>
+    <p>
+        In order to create a decision tree, specific types of data must be input into the system.
+        The data inputs themselves can be both numerical and categorical, however the dataset as a whole must be <i>disjoint.</i>
+        Disjoint data means that each of the features present must be mutually exclusive from one another, and have no common elements between them.
+        If the data is not disjoint, the tree will become circular and can, in effect, lead to infinit loops where no possible classification may result.
+        In these instances where the data has common features are not mutually exclusive, it is best to remove or modify the samples in the data such that the tree can continue to run harmoniously.
+        In the below code and example, all cases of non disjoint features have been removed entirely.
+        Furthermore, a visual example of disjoint data is displayed below in its simplest, statistical definition (referenced from <a href = "https://www.math-only-math.com/disjoint-of-sets-using-Venn-diagram.html">MathOnlyMath</a>).
+    </p>
+    <h3 class = "center">Disjoint Data</h3>
+    <img src = "./plots/disjoint_data.png" class = "center">
+
+
+
+
+    
+    NEED AN EXAMPLE OF A SIMPLE DECISION TREE
