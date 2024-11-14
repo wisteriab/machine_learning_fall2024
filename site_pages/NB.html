@@ -151,6 +151,7 @@
         If a simple train test split were applied leading to unbalanced training data, the models below would have substantially higher accuracy.
         While it is generally better to have higher accuracy in the models, it would only be beneficial in classifying the majority group and would perform poorer, on average, for minority groups.
         As such the data was undersampled to provide more balance and make the models more efficient at classifying the minority groups as this is what the purpose of the models is: to identify impoverishment and those at risk of impoverishment.
+        This means that the overall data was split into two groups (training and testing) then the training data was resampled until equal values of each of the target variables was exhibitted.
         The training data still was sufficiently large, however, leaving, in some cases, over 16000 net samples.
     </p>
     <h3>Multinomial Naive Bayes</h3>

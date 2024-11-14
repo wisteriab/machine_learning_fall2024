@@ -149,6 +149,7 @@
         While there are other features that would be valuable (like job clasification), the use of mixed data (both categorical and numeric) in this case does not work for multinomial naive bayes in python and would make a logistic regression model too complex as there would be a need to dummify the data (the categorical variables are not inherently ordinal).
         As such, they were removed from the original census data, and only the numerical and dummy variables were included.
         Lastly, the issue of balance in the training data again remains meaning that the training data needed to be randomly undersampled in order to enable the models to learn to better classify the minority labels.
+        This means that the overall data was split into two groups (training and testing) then the training data was resampled until equal values of each of the target variables was exhibitted.
         The raw data is displayed below followed by the final training and testing data to be used in both models.
     </p>
 

@@ -287,6 +287,7 @@
         For example, management operations and administrative jobs were all remapped to be within a white collar job category.
         There was again an issue of balance as noted in the naive bayes section.
         To solve this, the training data was randomly undersampled to make a more balanced training dataset.
+        This means that the overall data was split into two groups (training and testing) then the training data was resampled until equal values of each of the target variables was exhibitted.
         This prevents artificially inflating accuracy scores and enables the trees to be more capable at identifying the minority classes.
         Lastly, in between each of the trees a feature was dropped to better understand the relationships in the data and provide unique root nodes.
         In the first decision tree, all features were used, in the second tree all but income were included in the data, adn in the third tree all but training, marital status, and age were used to create the tree.
