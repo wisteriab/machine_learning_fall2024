@@ -80,6 +80,11 @@
             width: 50%;
         }
 
+        .pdf {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        }
+
     </style>
 </head>
 <body>
@@ -157,8 +162,586 @@
     <h3 class = "center">Disjoint Data</h3>
     <img src = "./plots/disjoint_data.png" class = "center">
 
+    <h1>Data Cleaning and Prep</h1>
+    <p>
+        The raw data for the following decision trees was as follows
+    </p>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>age</th>
+              <th>job_industry_recode</th>
+              <th>school_enroll_lastweek</th>
+              <th>employment</th>
+              <th>fam_size</th>
+              <th>...</th>
+              <th>fam_otc_med_costs</th>
+              <th>fam_rent_val</th>
+              <th>fips</th>
+              <th>state</th>
+              <th>state.1</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>1</th>
+              <td>67</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>4</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>2</th>
+              <td>74</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>60</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>4</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>3</th>
+              <td>66</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>1</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>4</th>
+              <td>68</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>1</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>5</th>
+              <td>52</td>
+              <td>Not in universe, or children</td>
+              <td>No</td>
+              <td>0</td>
+              <td>1</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>5 rows × 38 columns</p>
+        </div>
+    <h3>Initial Data Cleaning</h3>
+    <p>
+        Decision trees are a powerful tool in partitioning data and are capable of reading both categorical and numeric data.
+        However, in python, it must be noted that there must be extra special care taken when combining data types as python can and will inadvertently add extra weight to certain features based on how categorical data must be encoded.
+        Thus, when selecting categorical columns, only those where the column could be drastically reduced or one hot encoded without drastically increasing dimensionality were used.
+        Many of these columns were originally selected based on the multinomialnaive bayes and categorical naive bayes datasets.
+        Refer to the Naive Bayes tab for further clarification.
+        The following columns were selected for use in the decision trees: federal income, family size, age, family medical costs, weeks unemployed, hours worked, job industry, highest education, marital status, 
+        full time or part time, job industry, sex, full time or part time school.
+        Of these categories job industry, highest education, marital status, full time or part time, sex, and full time or part time school were all categorical variables that needed to be encoded.
+        One hot encoding was selected, and while it increased dimensionality, many of the features were dummy features or had few categories such that it did not impact the data heavily.
+        However, age, job industry, and education did have a drastic amount of categories and as such were remapped into larger groupings. 
+        For example, management operations and administrative jobs were all remapped to be within a white collar job category.
+        There was again an issue of balance as noted in the naive bayes section.
+        To solve this, the training data was randomly undersampled to make a more balanced training dataset.
+        This prevents artificially inflating accuracy scores and enables the trees to be more capable at identifying the minority classes.
+        Lastly, in between each of the trees a feature was dropped to better understand the relationships in the data and provide unique root nodes.
+        In the first decision tree, all features were used, in the second tree all but income were included in the data, adn in the third tree all but training, marital status, and age were used to create the tree.
+        The overall final training and testing data is included below.
+    </p>
+    <h3>Training Data</h3>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>federal_gross_income_adj</th>
+              <th>fam_size</th>
+              <th>age</th>
+              <th>fam_med_costs</th>
+              <th>weeks_unemployed</th>
+              <th>...</th>
+              <th>labor_force_recode_Unemp,on layoff</th>
+              <th>labor_force_recode_W/job,not at work</th>
+              <th>labor_force_recode_Working</th>
+              <th>sex_Female</th>
+              <th>sex_Male</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>103888</th>
+              <td>0</td>
+              <td>1</td>
+              <td>5</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>89741</th>
+              <td>0</td>
+              <td>1</td>
+              <td>14</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>71415</th>
+              <td>0</td>
+              <td>3</td>
+              <td>2</td>
+              <td>500</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>114301</th>
+              <td>0</td>
+              <td>0</td>
+              <td>69</td>
+              <td>60</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <th>93094</th>
+              <td>0</td>
+              <td>1</td>
+              <td>4</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <th>...</th>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+            </tr>
+            <tr>
+              <th>91830</th>
+              <td>0</td>
+              <td>0</td>
+              <td>29</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>132499</th>
+              <td>2801</td>
+              <td>1</td>
+              <td>52</td>
+              <td>400</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>18297</th>
+              <td>0</td>
+              <td>0</td>
+              <td>59</td>
+              <td>350</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <th>142277</th>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>65234</th>
+              <td>0</td>
+              <td>1</td>
+              <td>15</td>
+              <td>40</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>17840 rows × 49 columns</p>
+        </div>
+    <p>and the target variable counts were:</p>
+    poverty ratio <br>
+100 - 124 PERCENT OF THE POVERTY LEVEL :   4460 <br>
+125 - 149 PERCENT OF THE POVERTY LEVEL  :  4460<br>
+150 AND ABOVE THE POVERTY LEVEL        :   4460<br>
+BELOW POVERTY LEVEL                     :  4460<br>
 
+    <h3>Testing Data</h3>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>federal_gross_income_adj</th>
+              <th>fam_size</th>
+              <th>age</th>
+              <th>fam_med_costs</th>
+              <th>weeks_unemployed</th>
+              <th>...</th>
+              <th>labor_force_recode_Unemp,on layoff</th>
+              <th>labor_force_recode_W/job,not at work</th>
+              <th>labor_force_recode_Working</th>
+              <th>sex_Female</th>
+              <th>sex_Male</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>60456</th>
+              <td>0</td>
+              <td>1</td>
+              <td>11</td>
+              <td>150</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <th>61253</th>
+              <td>312940</td>
+              <td>1</td>
+              <td>38</td>
+              <td>3500</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>40491</th>
+              <td>115103</td>
+              <td>1</td>
+              <td>34</td>
+              <td>805</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <th>113407</th>
+              <td>44020</td>
+              <td>0</td>
+              <td>32</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <th>79087</th>
+              <td>0</td>
+              <td>1</td>
+              <td>1</td>
+              <td>1000</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>...</th>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+            </tr>
+            <tr>
+              <th>15647</th>
+              <td>50002</td>
+              <td>2</td>
+              <td>23</td>
+              <td>300</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>59576</th>
+              <td>0</td>
+              <td>1</td>
+              <td>45</td>
+              <td>1270</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>14999</th>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>330</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>98278</th>
+              <td>22000</td>
+              <td>1</td>
+              <td>35</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>23969</th>
+              <td>0</td>
+              <td>1</td>
+              <td>52</td>
+              <td>4300</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>29172 rows × 49 columns</p>
+        </div>
+        <p>and the target variable counts were as follows:</p>
+        poverty ratio <br>
+150 AND ABOVE THE POVERTY LEVEL       :    23509<br>
+BELOW POVERTY LEVEL                    :    3346<br>
+125 - 149 PERCENT OF THE POVERTY LEVEL  :   1217<br>
+100 - 124 PERCENT OF THE POVERTY LEVEL   :  1100<br>
 
+    <h1>Results</h1>
+    <h3 class = "center">Net Decision Tree and Confusion Matrix - Figure 1</h3>
+    <p>Tree</p>
+    <iframe class = "pdf" src = "./plots/Decision_Tree1.pdf" width = "500" height = "800"></iframe>
+    <p>Confusion Matrix 1</p>
+    <img src = "./plots/Decision_TreeCM.png" class = "center">
+    <p>The accuracy score for the original net decision tree was 69.2%</p>
+    <br>
+    <br>
+    <br>
+    <h3 class = "center">Decision Tree Income Removed and Confusion Matrix - Figure 2</h3>
+    <p>Tree</p>
+    <iframe class = "pdf" src = "./plots/Decision_Tree2.pdf" width = "500" height = "800"></iframe>
+    <p>Confusion Matrix 2</p>
+    <img src = "./plots/Decision_Tree2CM.png" class = "center">
+    <p>The accuracy score for the second decision tree was 54.2%</p>
+    <br>
+    <br>
+    <br>
+    <h3 class = "center">Decision Tree Age and Separated Marital Status Removed and Confusion Matrix - Figure 3</h3>
+    <p>Tree</p>
+    <iframe class = "pdf" src = "./plots/Decision_Tree3.pdf" width = "500" height = "800"></iframe>
+    <p>Confusion Matrix 3</p>
+    <img src = "./plots/Decision_Tree3CM.png" class = "center">
+    <p>The accuracy score for the third tree was: 53.6%</p>
 
-    
-    NEED AN EXAMPLE OF A SIMPLE DECISION TREE
+    <h1>Conclusions</h1>
+    <p>
+        In this project, decision trees are used primarily as a supervised learning technique to calssify the levels of impoverishment and to identify what key features are needed to do so.
+        Looking to each of the results of the individual decision trees, the preliminary decision tree performs best scoring nearly 70% successful at correctly identifying the level of impoverishment.
+        The drastic drop off in accuracy shows how substantial income is to the level of poverty somebody experiences despite costs a family may have to endure.
+        One other substantial thing to notice is the level of entropy in each of the trees.
+        There is high entropy exhibitted in all of the trees.
+        This manifests primarily as noise, but further suggests a need for more data around the participants of the census.
+        Furthermore, the initial decision tree exhibits all expense based features in the tree despite others showing categorical features as significant.
+        This demonstrates that despite potential indicators of income, it truly is the expenses and costs that help to determine impoverishment even if the individuals that typically experience poverty are unbalanced in general.
+        Additionally, the first tree is the only one to have a single node with less than a 0.05 gini coefficient, the closest to pure exhibitted.
+        This means that there is a group of features or questions that one may ask in the decision tree to indicate at what level of poverty one experiences.
+        Said node is based in income primarily, then medical costs, then family size.
+    </p>
+
+    <p>
+        The following two nodes exhibit higher levels of entropy, lower information gain between the levels and generally higher gini coefficients.
+        This again highlights the importance of income, but after dropping the feature provides substantial insight into what other features may be indicative of income in the US.
+        The second tree again exhibits a cost, but further looks into what type of employment a person exhibits, either full or part time.
+        This begs the question and leads to the assumption that part time employment may potentially lead to higher rates of poverty in the US.
+        Furthermore, the third decision tree looks to family size and whether or not a person was married and separated.
+        These again suggest that there is a possibility that having larger families and being divorced in the US can lead to higher rates of poverty.
+    </p>
+    <p>
+        Outside of the accuracy scores, the confusion matrices also provide some unique insight.
+        The first tree was able to identify and classify poverty at a very successful rate. 
+        However, looking to the confusion matrix, it was only able to do so for those who are not impoverished and those who are.
+        It noticable fails at classiying those at risk of poverty as seen by the true classification rates for the two classes being nearly a third of the other two trees.
+        Both of the succeeding trees performed far better at identifying those at risk of poverty, those who are between 100 and 150% of the poverty threshold.
+        In such a case that identifying those individuals is important, it may be more beneficial to not use the first tree despite the higher accuracy score.
+    </p>

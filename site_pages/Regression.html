@@ -138,3 +138,543 @@
         The likelihood estimation of the function represents the probability of observing the outputs given the parameters of the model.
         By maximizing the likelihood function, the optimal parameters yielded are effectively the most likely values for the weights that impact the dependent variable.
     </p>
+
+    <h3>Data Prep and Code</h3>
+    <p>
+        Following suit with adjacent tabs, the main goal of these models is to classify people who are imoverished.
+        However, since logistic regression requires a binary output, any target at or above 150 percent of the threshold for poverty was remapped to represent not impoverished persons.
+        Each of the other three classes was remapped to impoverished to represent both those who are impoverished and those who are the closest to at risk of poverty.
+        This leaves the data to have only 2 target labels as required for logistic regression.
+        Immediately following this, feature variables were selected and include federal gross income, family size, age, family medical costs, time unemployesd, total hours worked in the week, sex, and whether they were employed or not.
+        While there are other features that would be valuable (like job clasification), the use of mixed data (both categorical and numeric) in this case does not work for multinomial naive bayes in python and would make a logistic regression model too complex as there would be a need to dummify the data (the categorical variables are not inherently ordinal).
+        As such, they were removed from the original census data, and only the numerical and dummy variables were included.
+        Lastly, the issue of balance in the training data again remains meaning that the training data needed to be randomly undersampled in order to enable the models to learn to better classify the minority labels.
+        The raw data is displayed below followed by the final training and testing data to be used in both models.
+    </p>
+
+    <h3>Raw Data</h3>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>age</th>
+              <th>job_industry_recode</th>
+              <th>school_enroll_lastweek</th>
+              <th>employment</th>
+              <th>fam_size</th>
+              <th>full_time_work</th>
+              <th>full_part_school</th>
+              <th>highest_education</th>
+              <th>hs_col_unenrolled</th>
+              <th>weekly_earnings</th>
+              <th>...</th>
+              <th>poverty_ratio</th>
+              <th>family_earn_ly</th>
+              <th>fam_id</th>
+              <th>fam_med_costs</th>
+              <th>fam_outofpocket_med_costs</th>
+              <th>fam_otc_med_costs</th>
+              <th>fam_rent_val</th>
+              <th>fips</th>
+              <th>state</th>
+              <th>state.1</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>1</th>
+              <td>67</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>Some College But No Degree</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>BELOW POVERTY LEVEL</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>4</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>2</th>
+              <td>74</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>High school graduate-high school diploma</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>BELOW POVERTY LEVEL</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>60</td>
+              <td>60</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>4</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>3</th>
+              <td>66</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>High school graduate-high school diploma</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>150 AND ABOVE THE POVERTY LEVEL</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>4</th>
+              <td>68</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>High school graduate-high school diploma</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>150 AND ABOVE THE POVERTY LEVEL</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>5</th>
+              <td>52</td>
+              <td>Not in universe, or children</td>
+              <td>No</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>High school graduate-high school diploma</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>150 AND ABOVE THE POVERTY LEVEL</td>
+              <td>42000</td>
+              <td>1</td>
+              <td>50</td>
+              <td>1370</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>5 rows × 38 columns</p>
+        </div>
+    <h3>Training Data</h3>
+    <p>
+        Feature data is as follows
+    </p>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>federal_gross_income_adj</th>
+              <th>fam_size</th>
+              <th>age</th>
+              <th>fam_med_costs</th>
+              <th>weeks_unemployed</th>
+              <th>hours_worked</th>
+              <th>sex</th>
+              <th>employment</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>110777</th>
+              <td>0</td>
+              <td>1</td>
+              <td>52</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>19343</th>
+              <td>4044</td>
+              <td>1</td>
+              <td>80</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>8390</th>
+              <td>0</td>
+              <td>1</td>
+              <td>48</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>122812</th>
+              <td>0</td>
+              <td>1</td>
+              <td>14</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>78625</th>
+              <td>0</td>
+              <td>1</td>
+              <td>57</td>
+              <td>120</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>...</th>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+            </tr>
+            <tr>
+              <th>51995</th>
+              <td>0</td>
+              <td>1</td>
+              <td>11</td>
+              <td>250</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>34409</th>
+              <td>0</td>
+              <td>1</td>
+              <td>4</td>
+              <td>5000</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>106055</th>
+              <td>0</td>
+              <td>1</td>
+              <td>13</td>
+              <td>1200</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>145010</th>
+              <td>0</td>
+              <td>2</td>
+              <td>12</td>
+              <td>200</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>129535</th>
+              <td>116827</td>
+              <td>1</td>
+              <td>59</td>
+              <td>310</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>44140 rows × 8 columns</p>
+        </div>
+    <p>
+        The corresponding label counts are as follows
+    </p>
+    poverty ratio <br>
+Impoverished    :    22070 <br>
+Not Impoverished   : 22070<br>
+
+<h3>Testing Data</h3>
+<p>
+    The Testing data is as follows
+</p>
+<div>
+    <style scoped>
+        .dataframe tbody tr th:only-of-type {
+            vertical-align: middle;
+        }
+    
+        .dataframe tbody tr th {
+            vertical-align: top;
+        }
+    
+        .dataframe thead th {
+            text-align: right;
+        }
+    </style>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>federal_gross_income_adj</th>
+          <th>fam_size</th>
+          <th>age</th>
+          <th>fam_med_costs</th>
+          <th>weeks_unemployed</th>
+          <th>hours_worked</th>
+          <th>sex</th>
+          <th>employment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>8052</th>
+          <td>0</td>
+          <td>1</td>
+          <td>54</td>
+          <td>12000</td>
+          <td>0</td>
+          <td>10</td>
+          <td>1</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <th>21158</th>
+          <td>0</td>
+          <td>1</td>
+          <td>51</td>
+          <td>999</td>
+          <td>0</td>
+          <td>50</td>
+          <td>0</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <th>69026</th>
+          <td>4800</td>
+          <td>0</td>
+          <td>69</td>
+          <td>200</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>81717</th>
+          <td>160001</td>
+          <td>1</td>
+          <td>38</td>
+          <td>0</td>
+          <td>0</td>
+          <td>72</td>
+          <td>1</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <th>101671</th>
+          <td>0</td>
+          <td>1</td>
+          <td>17</td>
+          <td>4000</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>...</th>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+        </tr>
+        <tr>
+          <th>112679</th>
+          <td>0</td>
+          <td>1</td>
+          <td>40</td>
+          <td>8500</td>
+          <td>0</td>
+          <td>15</td>
+          <td>0</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <th>9847</th>
+          <td>10002</td>
+          <td>1</td>
+          <td>20</td>
+          <td>0</td>
+          <td>0</td>
+          <td>35</td>
+          <td>0</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <th>139909</th>
+          <td>91928</td>
+          <td>1</td>
+          <td>38</td>
+          <td>200</td>
+          <td>0</td>
+          <td>2</td>
+          <td>0</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <th>77000</th>
+          <td>54605</td>
+          <td>1</td>
+          <td>47</td>
+          <td>1400</td>
+          <td>0</td>
+          <td>25</td>
+          <td>1</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <th>109282</th>
+          <td>32538</td>
+          <td>0</td>
+          <td>64</td>
+          <td>20000</td>
+          <td>0</td>
+          <td>25</td>
+          <td>0</td>
+          <td>1</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>28702 rows × 8 columns</p>
+    </div>
+<p>
+    And the target variable counts are as follows
+</p>
+poverty ratio <br>
+Not Impoverished :   23146 <br>
+Impoverished      :   5556 <br>
+
+<h1>Results</h1>
+<p>
+    Below is included the results of each of the models to include the confusion matrices and the accuracy scores.
+    The Logistic Regression model outperforms the Multinomial Naive Bayes by a substantial margin (nearly 15% in accuracy) and the confusion matrix appears to be much more balanced on the diagonals
+</p>
+<h3>Logistic Regression</h3>
+<img src = "./plots/logregCM.png" class = "center">
+<p>The accuracy score for the logistic regression was 64.5%</p>
+<h3>Multinomial Naive Bayes</h3>
+<img src = "./plots/Regression_MNBCM.png" class = "center">
+<p>The accuracy score for the multinomial naive bayes was 49.4% (nearly 7% better than in the Naive Bayes section due to some assumptions and increased variables)</p>
+
+<h1>Conclusions</h1>
+<p>
+    In this module, both logistic regression and multinomial naive bayes were used to classify the existence of poverty in the American people.
+    Looking to the above accuracy scores and t=confusion matrices, the logistic regression far outperforms the multinomial naive bayes model.
+    Based on the accuracy of around 50% alone, the naive bayes has, effectively, a random chance of selecting the correct classification.
+    Comparatively, the logistic regression is roughly 15% better at classification.
+    While the logistic regression scores are still low, it is still a substantially better model.
+    This suggests 2 main things, that more daa that is uncorrelated is needed and that the bias that is exhibitted naturally in the naive bayes model is a hiuge detriment to its ability to classify.
+    This likely comes from the necessity to assume independence of the variables when in real life, as seen above by raw census data, this is not always the case.
+    There are many features in the model that may be highly correlated like age and income, as the older one gets, the more likely they are to make more money from both higher experience working and greater education.
+    Further research and model development is needed and the results of this suggest that a different model may be needed that could learn from the mistakes of this one.
+    One such example could be a ridge or lasso regression that is still linear in nature but penalizes the correlation by regularization.
+    Looking to the data itself, aside from learning that there is high variance that combats the bias preference of the multinomial naive bayes that the logistic regression can better combat, the results suggest that impoverishment specifically is more difficult to predict.
+    Based on the matrix alone, the model has more false positives for impoverishment than false positives in both cases.
+    Ultimately this guides the need for data to provide information on impoverished people specifically rather than classifying people out of poverty.
+</p>
+

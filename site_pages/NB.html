@@ -133,7 +133,1145 @@
         Lastly, complement naive bayes is a special case of multinomial naive bayes specifically designed for more unbalanced data.
         This means that the target variables arent evenly (or close to evenly) distributed and one target is represented more than the others.
     </p>
-    <h3>Data Prep and Cleaning</h3>
+    <h1>Data Prep and Cleaning</h1>
+    <h3>General Cleaning for all models</h3>
     <p>
-        
+        Each of the three types of Naive Bayes models tested below require different data inputs as described in the introduction.
+        More significantly, all three of the models require disjoint data. 
+        This was done by removing columns that have overlapping explanations and common variables.
+        One such example being weekly earnings and federal income adjusted.
+        In this case only federal income was used. 
+        Should any disjoint data be included it would cause the probabilities calculated to be incorrect and potentially lead to higher values making the models themselves null and void.
+        Disjoint data was ensured to be removed in each of the three models for this reason.
     </p>
+    <p>
+        Furthermore, the original data used exhibitted highly unbalanced data.
+        In the United States, roughly 11% of people live under the poverty line while 80% are above 150% the threshold for poverty.
+        This means that within all the training data, there would be high imbalance in the target variables.
+        If a simple train test split were applied leading to unbalanced training data, the models below would have substantially higher accuracy.
+        While it is generally better to have higher accuracy in the models, it would only be beneficial in classifying the majority group and would perform poorer, on average, for minority groups.
+        As such the data was undersampled to provide more balance and make the models more efficient at classifying the minority groups as this is what the purpose of the models is: to identify impoverishment and those at risk of impoverishment.
+        The training data still was sufficiently large, however, leaving, in some cases, over 16000 net samples.
+    </p>
+    <h3>Multinomial Naive Bayes</h3>
+    <p>
+        Firstly, Multinomial Naive Bayes models requires data be discrete and as such only discrete columns were used.
+        One specific column of use requires further clarification on this: federal gross income adjusted.
+        This column was included in the data despite the correlation with poverty as the level of poverty is dependent on income as well as costs in order to calculate.
+        As such, it is still a valid column to use and is still disjoint because there is no net overlap between impoverishment level and net income.
+        Furthermore, it is safe to assume that the data is discrete and non gaussian as the distribution of wealth is bounded and does not follow a typical normal distribution.
+        If a normal distribution or even an assumption of the normal distribution was to be made, a gaussian naive bayes model would be better; however, the data is not so and exhibits a high leftward skew.
+        With this in consideration, the original census dataset was filtered down to the following variables: federal gross income, family size, age, family medical costs, weeks unemployed, and hours worked.
+        The target variable was left as the poverty ratio in 4 different categories as it will be for all othe Naive Bayes models.
+        They include 150% and above the poverty threshold, 125-149% of the poverty threshold, 100-124% of the poverty threshold, and impoverished. 
+        Any rows lacking data were dropped.
+        Additionally, all rows exhibitting negative values (data error) were removed and consisted of roughly 10 elements of the original dataset (which is entirely insignificant in the grand scheme).
+    </p>
+    <p>
+        The head of the initial census dataset is as follows:
+    </p>
+    <h3>Raw Data</h3>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>age</th>
+              <th>job_industry_recode</th>
+              <th>school_enroll_lastweek</th>
+              <th>employment</th>
+              <th>fam_size</th>
+              <th>...</th>
+              <th>fam_otc_med_costs</th>
+              <th>fam_rent_val</th>
+              <th>fips</th>
+              <th>state</th>
+              <th>state.1</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>1</th>
+              <td>67</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>4</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>2</th>
+              <td>74</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>0</td>
+              <td>...</td>
+              <td>60</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>4</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>3</th>
+              <td>66</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>1</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>4</th>
+              <td>68</td>
+              <td>Not in universe, or children</td>
+              <td>Not in univ. or children &amp; Armed Forces</td>
+              <td>0</td>
+              <td>1</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <th>5</th>
+              <td>52</td>
+              <td>Not in universe, or children</td>
+              <td>No</td>
+              <td>0</td>
+              <td>1</td>
+              <td>...</td>
+              <td>0</td>
+              <td>0</td>
+              <td>ME</td>
+              <td>3</td>
+              <td>23</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>5 rows × 38 columns</p>
+        </div>
+    <h3>Multinomial Naive Bayes Preliminary Data</h3>
+    <p>While the initial Multinomial Naive Bayes dataset is:</p>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>federal_gross_income_adj</th>
+              <th>fam_size</th>
+              <th>age</th>
+              <th>fam_med_costs</th>
+              <th>weeks_unemployed</th>
+              <th>hours_worked</th>
+              <th>poverty_ratio</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>1</th>
+              <td>0</td>
+              <td>0</td>
+              <td>67</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>BELOW POVERTY LEVEL</td>
+            </tr>
+            <tr>
+              <th>2</th>
+              <td>9</td>
+              <td>0</td>
+              <td>74</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>BELOW POVERTY LEVEL</td>
+            </tr>
+            <tr>
+              <th>3</th>
+              <td>0</td>
+              <td>1</td>
+              <td>66</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>150 AND ABOVE THE POVERTY LEVEL</td>
+            </tr>
+            <tr>
+              <th>4</th>
+              <td>2400</td>
+              <td>1</td>
+              <td>68</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>150 AND ABOVE THE POVERTY LEVEL</td>
+            </tr>
+            <tr>
+              <th>5</th>
+              <td>47828</td>
+              <td>1</td>
+              <td>52</td>
+              <td>50</td>
+              <td>0</td>
+              <td>0</td>
+              <td>150 AND ABOVE THE POVERTY LEVEL</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+    <p>
+        Then training and testing sets needed to be established.
+        In all of the Naive Bayes models the process was as follows.
+        First the dataset was split into training and testing.
+        Then, value counts of each of the target variables was measured to check for any imbalance in the data that would artificially inflate the accuracy.
+        All three sets exhibitted some flavor of data imbalance.
+        As such, the training datasets were then randomly undersampled such that the input data that the models were trained on were balanced and disjoint.
+        The training and testing datasets for multinomial naive bayes are displayed below.
+    </p>
+    <h3>
+        Multinomial Naive Bayes Training Sets
+    </h3>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>federal_gross_income_adj</th>
+              <th>fam_size</th>
+              <th>age</th>
+              <th>fam_med_costs</th>
+              <th>weeks_unemployed</th>
+              <th>hours_worked</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>103888</th>
+              <td>0</td>
+              <td>1</td>
+              <td>5</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>89741</th>
+              <td>0</td>
+              <td>1</td>
+              <td>14</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>71415</th>
+              <td>0</td>
+              <td>3</td>
+              <td>2</td>
+              <td>500</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>114301</th>
+              <td>0</td>
+              <td>0</td>
+              <td>69</td>
+              <td>60</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>93094</th>
+              <td>0</td>
+              <td>1</td>
+              <td>4</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>...</th>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+            </tr>
+            <tr>
+              <th>101608</th>
+              <td>0</td>
+              <td>1</td>
+              <td>10</td>
+              <td>300</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>53898</th>
+              <td>0</td>
+              <td>0</td>
+              <td>67</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>118269</th>
+              <td>650</td>
+              <td>0</td>
+              <td>35</td>
+              <td>200</td>
+              <td>0</td>
+              <td>14</td>
+            </tr>
+            <tr>
+              <th>114257</th>
+              <td>0</td>
+              <td>1</td>
+              <td>7</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>58924</th>
+              <td>0</td>
+              <td>1</td>
+              <td>16</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>17840 rows × 6 columns</p>
+        </div>
+
+    <p>The target variables are as follows</p>
+
+poverty ratio <br>
+100 - 124 PERCENT OF THE POVERTY LEVEL  :  4460 <br>
+125 - 149 PERCENT OF THE POVERTY LEVEL   : 4460 <br>
+150 AND ABOVE THE POVERTY LEVEL         :  4460 <br>
+BELOW POVERTY LEVEL                      : 4460 <br>
+
+    <h3>Multinomial Naive Bayes Testing Set</h3>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>federal_gross_income_adj</th>
+              <th>fam_size</th>
+              <th>age</th>
+              <th>fam_med_costs</th>
+              <th>weeks_unemployed</th>
+              <th>hours_worked</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>60456</th>
+              <td>0</td>
+              <td>1</td>
+              <td>11</td>
+              <td>150</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>61253</th>
+              <td>312940</td>
+              <td>1</td>
+              <td>38</td>
+              <td>3500</td>
+              <td>0</td>
+              <td>16</td>
+            </tr>
+            <tr>
+              <th>40491</th>
+              <td>115103</td>
+              <td>1</td>
+              <td>34</td>
+              <td>805</td>
+              <td>0</td>
+              <td>50</td>
+            </tr>
+            <tr>
+              <th>113407</th>
+              <td>44020</td>
+              <td>0</td>
+              <td>32</td>
+              <td>0</td>
+              <td>0</td>
+              <td>40</td>
+            </tr>
+            <tr>
+              <th>79087</th>
+              <td>0</td>
+              <td>1</td>
+              <td>1</td>
+              <td>1000</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>...</th>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+            </tr>
+            <tr>
+              <th>15647</th>
+              <td>50002</td>
+              <td>2</td>
+              <td>23</td>
+              <td>300</td>
+              <td>0</td>
+              <td>36</td>
+            </tr>
+            <tr>
+              <th>59576</th>
+              <td>0</td>
+              <td>1</td>
+              <td>45</td>
+              <td>1270</td>
+              <td>0</td>
+              <td>48</td>
+            </tr>
+            <tr>
+              <th>14999</th>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>330</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>98278</th>
+              <td>22000</td>
+              <td>1</td>
+              <td>35</td>
+              <td>0</td>
+              <td>0</td>
+              <td>45</td>
+            </tr>
+            <tr>
+              <th>23969</th>
+              <td>0</td>
+              <td>1</td>
+              <td>52</td>
+              <td>4300</td>
+              <td>0</td>
+              <td>50</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>29172 rows × 6 columns</p>
+        </div>
+
+    <p>The target variable testing counts are as follows</p>
+
+poverty ratio<br>
+150 AND ABOVE THE POVERTY LEVEL        :   23509 <br>
+BELOW POVERTY LEVEL                     :   3346 <br>
+125 - 149 PERCENT OF THE POVERTY LEVEL   :  1217 <br>
+100 - 124 PERCENT OF THE POVERTY LEVEL    : 1100 <br>
+
+    <h3>Categorical Naive Bayes</h3>
+    <p>
+        The categorical naive bayes models also requires specific inputs to work properly. 
+        Features for this style of naive bayes (in python) absolutely must be categorical in nature.
+        Furthermore, sklearn cannot interpret strings as an input for naive bayes and as such were encoded.
+        Luckily naive bayes handles encoding slightly more efficiently, but the risk of weighting categories remains.
+        This comes from the fact that applying numbers to represent categories can inherently cause those categories with higher values to be weighted higher.
+        While this is a possible issue, the dataset used doesn't have too many categories and thus this was intentionally bypassed.
+        In cases of vastly too many categories one would either make larger groupings (as was done in the decision tree section) or eliminate the feature alltogether
+        Additionally, in the same fashion as the multinomial naive bayes, each of the columns was selected specially to ensure the dataset was disjoint.
+        The original dataset was reduced to select the following features to test for the same target variable: Job Inudstry, Grouped Age, Highest Education, Marital Status, Type of employment, State of Residence, Labor Force Participation, and Sex.
+        Following cutting down the original census data, a label encoder encoded each of the categorical variables into integers that represent a given group.
+        Lastly, the training set was again undersampled to have a balanced training data set.
+        The training and testing datasets are as follows.
+    </p>
+    <h3>Categorical Naive Bayes Training Data</h3>
+    <p>
+        The Training Data is as Follows:
+    </p>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>job_industry_recode</th>
+              <th>age_recode_gt15</th>
+              <th>highest_education</th>
+              <th>marital_status</th>
+              <th>ft_pt_unem</th>
+              <th>fips</th>
+              <th>labor_force_recode</th>
+              <th>sex</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>103888</th>
+              <td>17</td>
+              <td>17</td>
+              <td>10</td>
+              <td>4</td>
+              <td>1</td>
+              <td>43</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>89741</th>
+              <td>17</td>
+              <td>17</td>
+              <td>10</td>
+              <td>4</td>
+              <td>1</td>
+              <td>18</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>71415</th>
+              <td>17</td>
+              <td>17</td>
+              <td>10</td>
+              <td>4</td>
+              <td>1</td>
+              <td>9</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>114301</th>
+              <td>17</td>
+              <td>14</td>
+              <td>16</td>
+              <td>0</td>
+              <td>2</td>
+              <td>32</td>
+              <td>1</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <th>93094</th>
+              <td>17</td>
+              <td>17</td>
+              <td>10</td>
+              <td>4</td>
+              <td>1</td>
+              <td>36</td>
+              <td>0</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <th>...</th>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+            </tr>
+            <tr>
+              <th>19195</th>
+              <td>17</td>
+              <td>1</td>
+              <td>0</td>
+              <td>4</td>
+              <td>2</td>
+              <td>38</td>
+              <td>1</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <th>11626</th>
+              <td>17</td>
+              <td>3</td>
+              <td>1</td>
+              <td>4</td>
+              <td>2</td>
+              <td>34</td>
+              <td>1</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <th>50205</th>
+              <td>17</td>
+              <td>17</td>
+              <td>10</td>
+              <td>4</td>
+              <td>1</td>
+              <td>8</td>
+              <td>0</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <th>12311</th>
+              <td>17</td>
+              <td>17</td>
+              <td>10</td>
+              <td>4</td>
+              <td>1</td>
+              <td>34</td>
+              <td>0</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <th>89354</th>
+              <td>17</td>
+              <td>6</td>
+              <td>14</td>
+              <td>4</td>
+              <td>2</td>
+              <td>2</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>17840 rows × 8 columns</p>
+        </div>
+    <p>
+        The target training variable counts are included bleow:
+    </p>
+    poverty ratio <br>
+    100 - 124 PERCENT OF THE POVERTY LEVEL  :  4460 <br>
+    125 - 149 PERCENT OF THE POVERTY LEVEL   : 4460 <br>
+    150 AND ABOVE THE POVERTY LEVEL        :   4460 <br>
+    BELOW POVERTY LEVEL                     :  4460 <br>
+
+    <h3>The testing data is as follows:</h3>
+    <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+        
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+        
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>job_industry_recode</th>
+              <th>age_recode_gt15</th>
+              <th>highest_education</th>
+              <th>marital_status</th>
+              <th>ft_pt_unem</th>
+              <th>fips</th>
+              <th>labor_force_recode</th>
+              <th>sex</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>60456</th>
+              <td>17</td>
+              <td>17</td>
+              <td>10</td>
+              <td>4</td>
+              <td>1</td>
+              <td>27</td>
+              <td>0</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <th>61253</th>
+              <td>4</td>
+              <td>7</td>
+              <td>9</td>
+              <td>2</td>
+              <td>0</td>
+              <td>27</td>
+              <td>5</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>40491</th>
+              <td>9</td>
+              <td>6</td>
+              <td>9</td>
+              <td>2</td>
+              <td>0</td>
+              <td>12</td>
+              <td>5</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <th>113407</th>
+              <td>16</td>
+              <td>6</td>
+              <td>9</td>
+              <td>4</td>
+              <td>0</td>
+              <td>32</td>
+              <td>5</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <th>79087</th>
+              <td>17</td>
+              <td>17</td>
+              <td>10</td>
+              <td>4</td>
+              <td>1</td>
+              <td>42</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>...</th>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+              <td>...</td>
+            </tr>
+            <tr>
+              <th>15647</th>
+              <td>12</td>
+              <td>4</td>
+              <td>7</td>
+              <td>3</td>
+              <td>0</td>
+              <td>34</td>
+              <td>5</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>59576</th>
+              <td>11</td>
+              <td>9</td>
+              <td>15</td>
+              <td>2</td>
+              <td>0</td>
+              <td>49</td>
+              <td>5</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>14999</th>
+              <td>17</td>
+              <td>17</td>
+              <td>10</td>
+              <td>4</td>
+              <td>1</td>
+              <td>34</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>98278</th>
+              <td>23</td>
+              <td>7</td>
+              <td>7</td>
+              <td>4</td>
+              <td>0</td>
+              <td>43</td>
+              <td>5</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>23969</th>
+              <td>16</td>
+              <td>10</td>
+              <td>14</td>
+              <td>2</td>
+              <td>0</td>
+              <td>35</td>
+              <td>5</td>
+              <td>0</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>29172 rows × 8 columns</p>
+        </div>
+    <p>The target testing values are as follows</p>
+poverty_ratio <br>
+150 AND ABOVE THE POVERTY LEVEL    :       23509 <br>
+BELOW POVERTY LEVEL                 :       3346 <br>
+125 - 149 PERCENT OF THE POVERTY LEVEL :     1217 <br>
+100 - 124 PERCENT OF THE POVERTY LEVEL   :  1100 <br>
+
+<h3>Bernoulli Naive Bayes</h3>
+<p>
+    The last model used in this project was Bernoulli Naive Bayes.
+    Bernoulli Naive Bayes as described in the introduction is designed specifically for the features that exhibit bernoulli inputs/outputs.
+    That is to say that each of the features input is measured as either a zero or a one. 
+    Bernoulli Naive bayes can also extend to categorical features in the case of dummification with caution that the dataset does not get too large.
+    In the following model, features were primarliy chosen that exhibit this and were filtered further to ensure that the overal dataset was disjoint again such that it is possible to calculate the probabilities.
+    This leaves the training datasets to have the following features: sex, employment, fulltime or part time work, full time or part time school.
+    It is important to note that there is similarity between employment and full time or part time work.
+    They are disjoint, however, as the existence of being employed does <i>not</i> impact whether a person is full or part time and the two are independent of eachother.
+    From here any features that had values that corresponded to being outside the universe or were null values were dropped such that only 0 and 1 remained in the dataset.
+    Furthermore, the issue of balance still remained and as such undersampling occurred in the training dataset.
+    This leaves the following dataframes to be used as training and testing data.
+</p>
+<h3>Bernoulli Training Data</h3>
+<p>
+    The undersampled training data is as follows
+</p>
+<div>
+    <style scoped>
+        .dataframe tbody tr th:only-of-type {
+            vertical-align: middle;
+        }
+    
+        .dataframe tbody tr th {
+            vertical-align: top;
+        }
+    
+        .dataframe thead th {
+            text-align: right;
+        }
+    </style>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>sex</th>
+          <th>employment</th>
+          <th>full_time_work</th>
+          <th>full_part_school</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>18475</th>
+          <td>1</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>94035</th>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>97658</th>
+          <td>1</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>48527</th>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>40925</th>
+          <td>1</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>...</th>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+        </tr>
+        <tr>
+          <th>25089</th>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <th>122638</th>
+          <td>1</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>91298</th>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <th>121554</th>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>23667</th>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>17100 rows × 4 columns</p>
+    </div>
+<p>
+    And the target variable counts are included below:
+</p>
+poverty ratio <br>
+100 - 124 PERCENT OF THE POVERTY LEVEL :   4275 <br>
+125 - 149 PERCENT OF THE POVERTY LEVEL  :  4275 <br>
+150 AND ABOVE THE POVERTY LEVEL        :   4275 <br>
+BELOW POVERTY LEVEL                     :  4275 <br>
+
+<h3>The Testing datsasets are as follows</h3>
+<div>
+    <style scoped>
+        .dataframe tbody tr th:only-of-type {
+            vertical-align: middle;
+        }
+    
+        .dataframe tbody tr th {
+            vertical-align: top;
+        }
+    
+        .dataframe thead th {
+            text-align: right;
+        }
+    </style>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>sex</th>
+          <th>employment</th>
+          <th>full_time_work</th>
+          <th>full_part_school</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>33914</th>
+          <td>1</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>60226</th>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>33414</th>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>49028</th>
+          <td>0</td>
+          <td>1</td>
+          <td>1</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>97457</th>
+          <td>1</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>...</th>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+        </tr>
+        <tr>
+          <th>139168</th>
+          <td>1</td>
+          <td>1</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>78776</th>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>61639</th>
+          <td>1</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>56042</th>
+          <td>0</td>
+          <td>1</td>
+          <td>1</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>38683</th>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>28432 rows × 4 columns</p>
+    </div>
+<p>And the target variable outputs are as follows</p>
+poverty ratio <br>
+150 AND ABOVE THE POVERTY LEVEL          : 22949 <br>
+BELOW POVERTY LEVEL                       :  3213 <br>
+125 - 149 PERCENT OF THE POVERTY LEVEL  :   1142 <br>
+100 - 124 PERCENT OF THE POVERTY LEVEL  :    1128 <br>
+<h1>Results and Conclusion</h1>
+<p>
+    The three models produced the following confusion matrices and accuracy scores:
+</p>
+<h3>Multinomial Naive Bayes</h3>
+<img src = "./plots/MNBCM.png" class = "center">
+<p>
+    The accuracy for the Multinomial Naive Bayes was: 42.6%
+</p>
+<h3>Categorical Naive Bayes</h3>
+<img src = "./plots/CNBCM.png" class = "center">
+<p>
+    The accuracy score for the categorical naive bayes was: 51.0%
+</p>
+<h3>Bernoulli Naive Bayes</h3>
+<img src = "./plots/BNBCM.png" class = "center">
+<p>
+    The accuracy score for the bernoulli naive bayes was: 51.6%
+</p>
+
+<h3>Conclusions</h3>
+<p>
+    Looking to the accuracy scores, the bernoulli naive bayes clearly performed the best with an accuracy roughly a percentage point higher then the next best.
+    However, The biggest issue with the bernoulli naive bayes was that it failed to identify any persons in the 100-150% range of poverty.
+    As such, due to the closeness of the scores of the bernoulli and categorical bayesian models, the categorical in this case performs better across the board.
+    However, overall each of the models performed incredibly poorly. 
+    There are a few possible reasons for this.
+    Primarily, the lack of balance in the dataset leads to the conclusion that more data needs to be collected within those who are impovershed.
+    Furthermore, looking to the accuracy score disparity between the multinomial naive bayes and the other two suggests that there are potential issues in the data or lacking data in the discrete features.
+    Initial looks suggest that the vast majority of the noise comes from the federal income.
+    This feature alone, even with reducing outliers, adds substantial noise and entropy in the data that leads to incredible difficulty in calculating probabilities.
+    One way to fix some of the accuracy could potentially come from combining these models. 
+    As the categorical model is better at predicting 100-150% of poverty, and the bernoulli is better at predicting impoverishment and out of impoverishment, combining these may lead to higher accuracy scores.
+</p>
