@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <style>
+        body {
+            background-color: #EAE7DC ;
+            margin: 0px;
+            font-family:'Arial', 'Helvetica', sans-serif;
+            font-size: 18px;
+        }
+
+        .home-image {
+            background-image: url(./site_pages/IMG_3777.jpg);
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center top;
+            background-size: 100%;
+            height: 400px;
+        }
+
+        .home-image-text {
+            left:1%;
+            top:27%;
+            position: relative;
+            color: #e85a4f;
+        }
+
+        .navbar {
+            overflow: hidden;
+            background-color: #D8C3A5;
+        }
+
+        .navbar a {
+            float: left;
+            color: #e85a4f;
+            text-align: center;
+            font-size: 18 px;
+            padding: 20px 24px;
+            text-decoration: none;
+        }
+
+        .navbar a.active{
+            background-color: #e98074;
+            color: #EAE7DC;
+        }
+
+        .navbar a:hover{
+            background-color: #8E8D8A;
+            color: #EAE7DC;
+        }
+
+        p {
+            text-indent: 50px;
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
+        a {
+            text-decoration: none;
+        }    
+
+        h1 {
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
+        h3 {
+            line-height: 150%;
+            text-align: justify;
+            margin: 20px;
+        }
+
+        .center {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class = "navbar">
+        <a href ="../index.html">Introduction</a>
+        <a href = "./EDA.html">EDA</a>
+        <a href = './ARM.html'>ARM</a>
+        <a class = "active" href = "./Ensemble.html">Ensembles</a>
+        <a href = './Clustering.html'>Clustering</a>
+        <a href = "./NB.html">Naive Bayes</a>
+        <a href = "./PCA.html">PCA</a>
+        <a href = "./Regression.html">Regression</a>
+        <a href = "./SVM.html">SVM</a>
+        <a href = "./DT.html">DT</a>
+        <a href = "./Conclusions.html">Conclusions</a>
+    </div>
+<h1>Ensemble Methods</h1>
+<h3>Introduction</h3>
+<p>
+    Ensemble methods in machine learning are processes by which machine learning algorithms imporve their scoring metrics by making multiple versions of the same model.
+    With each additional model, the ensemble effectively learns where the model succeeds and, more importantly, where it fails.
+    By understanding where the model lacks, the ensemble method can adapt and improve weights for each feature in the data.
+    Ensemble methods generally take advantage of learning from multiple individual models which assists in minimizing reducible errror, improving accuracy.
+    There are three main methods of ensemble methods: Stacking, Bagging and Boosting.
+    While each of these methods require multiple models to learn from, each style of machine learning aggregates the new information in a different way.
+    However, as they are parsing through the data mutliple times and learning from the aggregation of multiple models, they are prone to overfit.
+    Furthermore, compared to the individual models, they are more computationally expensive than their weak learner coutnerpart, though less so than LLMs or Neural Networks.
+</p>
+<p>
+    Stacking is an ensemble method that effectively stacks base models (called base-learners) to learn independently of one another to make predictions on data.
+    These predictions are then aggregated as features for a final meta-model that is used on unseed data following training.
+    This effectively weights the efficacy of the previous models such that the final model is more capable at prediction.
+    However, because the data that is used to train the base learners must be different from the meta-learner, it is important to partition the data further so as to prevent overfitting.
+    This means that it is necessary to collect substantially more data for training and testing as there are effectively two different stages of model training.
+</p>
+
+<p>
+    Boosting, which is featured below for this project, is a common ensemble method that boosts through multiple different trees linearly.
+    After creating a single tree, the accuracy is tested and and the weights are updated within the tree itelf, or more optimal splits are made, to use within the next tree.
+    Because of this, improvements in the data are dependent on the misclassifications of the previous tree.
+    This can lead to overfitting if not enough caution is paid.
+    Furthermore, because boosting is a linear method of learning, for sake of computational efficiency, it is paramount to use weak learners like decision trees as the base model.
+    ADA Boost which uses voting to update weights, while more advanced versions use gradient descent like gradient boosting or Extreme Gradient Boosting.
+    These gradient boosting techniques aims to minimize the loss function and often value accuracy over all else which can make interpretability more difficult.
+</p>
+
+<p>
+    Lastly, bagging is a method by which multiple base learners are used independent of one another to predict the outcome.
+    Unlike stacking the individual predictions are not used as a feature for a new meta-learner, rather aggregated to make a final prediction.
+    This is beneficial in not requiring as much data, not as computationally expensive, nor is it as susceptible to overfitting.
+    However, becuase of this it can be less powerful on a case-by-case basis.
+    To compute the prediciton of each model, bootstrapping of the initial dataset (random selection of data) is used to feed training data.
+    From here, each outcome is aggregated by voting or by mean to come up with the final prediction from the bagged models.
+</p>
+
+<h3>XGBoost as a Method of Ensemble Learning, Training and Testing</h3>
+<p>
+    XGBoost or Extreme Gradient Boosting is an optimized version of Gradient Boosting used for both classification and regression.
+    This model is used in this project for a binary classification task aiming to predict those who are either impoverished or at risk of and those who are not.
+    XGBoost is beneficial in this way as it reduces overhead through parallelization and adds a regularization parameter to punish complexity in the trees.
+    Furthermore, while not applicable here due to cleaning, XGBoost is highly capable at handling and interpreting missing data.
+    However, because of many assumptions made to improve accuracy, interpretability within the trees themselves is not always intuitive.
+    As such, the aggregation of the trees provides valuable insight and a touch of a blind eye (for sake of ease of understanding without delving into the math) to fully comprehend the output.
+</p>
+
+<p>
+    The data used for the XGBoost model is the same as the Support Vector Machine tab, and as such follows similar methods of cleaning.
+    The original data from the Census Bureau is as follows:
+</p>
+
+<div>
+    <style scoped>
+        .dataframe tbody tr th:only-of-type {
+            vertical-align: middle;
+        }
+    
+        .dataframe tbody tr th {
+            vertical-align: top;
+        }
+    
+        .dataframe thead th {
+            text-align: right;
+        }
+    </style>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>age</th>
+          <th>job_industry_recode</th>
+          <th>school_enroll_lastweek</th>
+          <th>employment</th>
+          <th>fam_size</th>
+          <th>...</th>
+          <th>fam_otc_med_costs</th>
+          <th>fam_rent_val</th>
+          <th>fips</th>
+          <th>state</th>
+          <th>state.1</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>1</th>
+          <td>67</td>
+          <td>Not in universe, or children</td>
+          <td>Not in univ. or children &amp; Armed Forces</td>
+          <td>0</td>
+          <td>0</td>
+          <td>...</td>
+          <td>0</td>
+          <td>0</td>
+          <td>ME</td>
+          <td>4</td>
+          <td>23</td>
+        </tr>
+        <tr>
+          <th>2</th>
+          <td>74</td>
+          <td>Not in universe, or children</td>
+          <td>Not in univ. or children &amp; Armed Forces</td>
+          <td>0</td>
+          <td>0</td>
+          <td>...</td>
+          <td>60</td>
+          <td>0</td>
+          <td>ME</td>
+          <td>4</td>
+          <td>23</td>
+        </tr>
+        <tr>
+          <th>3</th>
+          <td>66</td>
+          <td>Not in universe, or children</td>
+          <td>Not in univ. or children &amp; Armed Forces</td>
+          <td>0</td>
+          <td>1</td>
+          <td>...</td>
+          <td>0</td>
+          <td>0</td>
+          <td>ME</td>
+          <td>3</td>
+          <td>23</td>
+        </tr>
+        <tr>
+          <th>4</th>
+          <td>68</td>
+          <td>Not in universe, or children</td>
+          <td>Not in univ. or children &amp; Armed Forces</td>
+          <td>0</td>
+          <td>1</td>
+          <td>...</td>
+          <td>0</td>
+          <td>0</td>
+          <td>ME</td>
+          <td>3</td>
+          <td>23</td>
+        </tr>
+        <tr>
+          <th>5</th>
+          <td>52</td>
+          <td>Not in universe, or children</td>
+          <td>No</td>
+          <td>0</td>
+          <td>1</td>
+          <td>...</td>
+          <td>0</td>
+          <td>0</td>
+          <td>ME</td>
+          <td>3</td>
+          <td>23</td>
+        </tr>
+        <tr>
+          <th>...</th>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+        </tr>
+        <tr>
+          <th>146129</th>
+          <td>17</td>
+          <td>Not in universe, or children</td>
+          <td>Yes</td>
+          <td>0</td>
+          <td>1</td>
+          <td>...</td>
+          <td>200</td>
+          <td>0</td>
+          <td>HI</td>
+          <td>2</td>
+          <td>15</td>
+        </tr>
+        <tr>
+          <th>146130</th>
+          <td>15</td>
+          <td>Not in universe, or children</td>
+          <td>Not in univ. or children &amp; Armed Forces</td>
+          <td>0</td>
+          <td>1</td>
+          <td>...</td>
+          <td>200</td>
+          <td>0</td>
+          <td>HI</td>
+          <td>2</td>
+          <td>15</td>
+        </tr>
+        <tr>
+          <th>146131</th>
+          <td>59</td>
+          <td>Office and administrative support occupations</td>
+          <td>Not in univ. or children &amp; Armed Forces</td>
+          <td>1</td>
+          <td>1</td>
+          <td>...</td>
+          <td>450</td>
+          <td>0</td>
+          <td>HI</td>
+          <td>2</td>
+          <td>15</td>
+        </tr>
+        <tr>
+          <th>146132</th>
+          <td>60</td>
+          <td>Business and financial operations occupations</td>
+          <td>Not in univ. or children &amp; Armed Forces</td>
+          <td>1</td>
+          <td>1</td>
+          <td>...</td>
+          <td>450</td>
+          <td>0</td>
+          <td>HI</td>
+          <td>2</td>
+          <td>15</td>
+        </tr>
+        <tr>
+          <th>146133</th>
+          <td>18</td>
+          <td>Office and administrative support occupations</td>
+          <td>Yes</td>
+          <td>1</td>
+          <td>1</td>
+          <td>...</td>
+          <td>450</td>
+          <td>0</td>
+          <td>HI</td>
+          <td>2</td>
+          <td>15</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>143508 rows × 38 columns</p>
+    </div>
+
+<p>
+    Many of these features were found to be redundant through other tabs and as such were dropped.
+    Furthermore, XGBoost requires numeric inputs.
+    Similar to previous tabs (such as the NB tab), it is technically possible to pass categorical data through the model assuming encoding occurs.
+    To prevent high dimensionality, however, it is necessary to use only those categories that are either bonary or have few classes.
+    This can bring about some issues in how the model reads data as encoding also inherently adds weight to the classes when in some cases they may not be ordinal.
+    For this project, sex and employment were binary features, but this issue can arise for the highest education class. 
+    To prevent weighting in this way, the class was remapped to five categories so as to minimize the impact: less than highschool, highschool, some college, undergrad, and masters' or higher.
+    This ultimately left 9 features to be tested as demonstrated by the dataframe's columns below.
+</p>
+
+<p>
+    Following feature elimination, the dataset was filtered to remove rows that lacked data.
+    While it is possible to run sparse data through XGBoost, it was found to be detrimental in this case.
+    This new data was then standardized to both improve computation efficiency and to scale that data to eachother as some features were orders of magnitude larger than others.
+    A 70/30 train test split was then applied to the data.
+    Lastly, the data was randomly undersampled due to imbalances such that there were equal counts of both target variable types.
+    The final cleaned training dataset is shown below and holds 38,876 rows.
+</p>
+
+<div>
+    <style scoped>
+        .dataframe tbody tr th:only-of-type {
+            vertical-align: middle;
+        }
+    
+        .dataframe tbody tr th {
+            vertical-align: top;
+        }
+    
+        .dataframe thead th {
+            text-align: right;
+        }
+    </style>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>federal_gross_income_adj</th>
+          <th>fam_size</th>
+          <th>age</th>
+          <th>fam_med_costs</th>
+          <th>weeks_unemployed</th>
+          <th>hours_worked</th>
+          <th>highest_education</th>
+          <th>sex</th>
+          <th>employment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>-0.432729</td>
+          <td>0.288997</td>
+          <td>-1.443471</td>
+          <td>0.444415</td>
+          <td>-0.020846</td>
+          <td>-0.842463</td>
+          <td>-1.193642</td>
+          <td>-1.027126</td>
+          <td>-0.957664</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>-0.432729</td>
+          <td>0.288997</td>
+          <td>-1.358011</td>
+          <td>-0.405861</td>
+          <td>-0.020846</td>
+          <td>-0.842463</td>
+          <td>-1.193642</td>
+          <td>-1.027126</td>
+          <td>-0.957664</td>
+        </tr>
+        <tr>
+          <th>2</th>
+          <td>-0.432729</td>
+          <td>0.288997</td>
+          <td>0.949383</td>
+          <td>0.044285</td>
+          <td>-0.020846</td>
+          <td>-0.842463</td>
+          <td>0.742145</td>
+          <td>-1.027126</td>
+          <td>-0.957664</td>
+        </tr>
+        <tr>
+          <th>3</th>
+          <td>-0.219828</td>
+          <td>-1.968061</td>
+          <td>0.436629</td>
+          <td>-0.380852</td>
+          <td>-0.020846</td>
+          <td>-0.364905</td>
+          <td>0.742145</td>
+          <td>0.973591</td>
+          <td>1.044207</td>
+        </tr>
+        <tr>
+          <th>4</th>
+          <td>-0.432729</td>
+          <td>0.288997</td>
+          <td>1.248490</td>
+          <td>-0.255812</td>
+          <td>-0.020846</td>
+          <td>-0.842463</td>
+          <td>0.742145</td>
+          <td>-1.027126</td>
+          <td>-0.957664</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+<h3>Classification Report</h3>
+
+<div>
+    <style scoped>
+        .dataframe tbody tr th:only-of-type {
+            vertical-align: middle;
+        }
+    
+        .dataframe tbody tr th {
+            vertical-align: top;
+        }
+    
+        .dataframe thead th {
+            text-align: right;
+        }
+    </style>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>precision</th>
+          <th>recall</th>
+          <th>f1-score</th>
+          <th>support</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>0.480084</td>
+          <td>0.841964</td>
+          <td>0.611495</td>
+          <td>8188.00000</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>0.954902</td>
+          <td>0.785860</td>
+          <td>0.862173</td>
+          <td>34865.00000</td>
+        </tr>
+        <tr>
+          <th>accuracy</th>
+          <td>0.796530</td>
+          <td>0.796530</td>
+          <td>0.796530</td>
+          <td>0.79653</td>
+        </tr>
+        <tr>
+          <th>macro avg</th>
+          <td>0.717493</td>
+          <td>0.813912</td>
+          <td>0.736834</td>
+          <td>43053.00000</td>
+        </tr>
+        <tr>
+          <th>weighted avg</th>
+          <td>0.864599</td>
+          <td>0.796530</td>
+          <td>0.814498</td>
+          <td>43053.00000</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+<br>
+<br>
+<img src = "./plots/xgbConfusion.png" class = 'center'>
+<br>
+<br>
+<br>
+<img src = "./plots/xgbFeatureImportance.png" class = 'center'>
+
+
+<h3>Conclusions</h3>
+
+<p>
+    The XGBoost model was found to be the most successful between all of the tabs with an overall accuracy of roughly 80% as demonstrated above.
+    Furthermore, the model performed much better at classifying those who are not impoverished as all of the other models have.
+    However, compared to the other models, it is far better still at classifying these points with an f1 score of roughly 62% far outperforming all other models.
+    This further shown in the confusion matrix above.
+    Lastly, the feature importance within the model is presented diplaying from top to bottom the most valuable features in predicting impoverishment.
+</p>
+
+<p>
+    What is most interesting is the feature importances though.
+    Within the model, age is characterized as most significant followed by family medical costs then income.
+    This is unique among all the models as age has often been pushed to the side in favor of income.
+    This provides some insight into how age can play into impoverishment. 
+    It is unclear at model creation which age groups are most susceptible of impoverishment.
+    This does make sense however from two perspectives. 
+    Firstly, those who are younger are less likely to be able to make money at the same rates as though who are more etablished in their careers.
+    As such, they likely do not have the same savings and protections towards staying afloat in society.
+    On the other side of the equation, those who are at the end of their careers are more likely to be making the most they ever have.
+    If older people are making less money in this case, it is highly likely then that they have little savings for retirement and thus will need more assistance to stay above the poverty line.
+    Furthermore, family medical costs are also ranked very high in importance for the sake of classifying impoverishment.
+    In every other model this feature was near the bottom in ranking.
+    Again this does make sense at first glance as those who pay more in medical costs are often swamped entirely by medical debt in the US
+</p>
+
+
+
+</body>
+</html>
