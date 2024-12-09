@@ -102,11 +102,14 @@
     In its simplest form of classification, Support Vector Machines aim to separate data linearly.
     The model attempts to find support vectors within the data and create a hyperplane in space to divide the data into classes.
     In 2D data this looks like a line while in higher dimensions it becomes a plane.
+    This hyperplane is demonstrated below and is referenced from <a href = "https://www.mathworks.com/discovery/support-vector-machine.html">MathWorks.</a>
     There are many cases where data is nonlinearly separable immediately, and with SVMs being linear classifiers a problem arises.
     Is it possible to linearly separate data that upon first inspection is not so?
     The answer is yes... with the caveat that some mathematical manipulation is necessary.
     Using the properties of dot products and kernel functions it becomes possible to project the vectors between points into higher space where the data is then able to be linearly separable.
 </p>
+<br>
+<img src = "./plots/SVMHyperplane.jpg" class = "center">
 
 <p>
     The dot product is a process by which the the projection of one vector on another is used.
@@ -116,10 +119,13 @@
     For more complex problems this expands to higher dimensions by expanding the multiples of each to extend through every point, i.e. a1*b1 + a2*b2 + ... + aN*bN for N vectors.
     For more complicated problems, particularly for those that are less linearly separable, there is a kind of trick that one can use to expand the power of the SVM.
     Said tick is to use a Kernel function for points (a,b) to expand the projection into higher dimensions.
+    It is demonstrated visually below and referenced from <a href = "https://towardsdatascience.com/the-kernel-trick-c98cdbcaeb3f">TowardDataScience.</a>
     The Kernel function is defined as K(a,b) = (aTb +r)^d.
     In the Kernel function, a and b are the points or vectors while r is the coefficient of the polynomial and the d is degree of the polynomial.
     Because fo this function, it then becomes possible to not actually project the points, rather use the properties of the function and the lagrangian of each function inside to derive the new weights and biases of each support vector as demonstrated below.
 </p>
+<br>
+<img src = "./plots/SVMKernelTrick.png" class = "center">
 
 <p>
     As an extention of the kernel funcition comes rbf kernels, or radial basis function kernels.
